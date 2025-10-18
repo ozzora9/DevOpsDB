@@ -317,11 +317,49 @@ def trend():
     return render_template('trend.html')
 
 
-@app.route('/mypage')
+import os
+from flask import url_for
+
+@app.route("/mypage")
 def mypage():
-    if 'user_email' not in session:
-        return redirect(url_for('login'))
-    return render_template('mypage.html', user_name=session.get('user_name'), user_email=session.get('user_email'))
+    # 로그인 안 되어 있으면 로그인 페이지로 이동
+    if "user_email" not in session:
+        return redirect(url_for("login"))
+
+    user_name = session.get("user_name")
+    user_id = session.get("user_id")
+
+    conn = get_connection()
+    cursor = conn.cursor()
+
+    # ✅ 현재 로그인한 사용자의 사진만 조회
+    cursor.execute("""
+        SELECT photo_id, description, color_id, image_path, location, likes_count
+        FROM photos
+        WHERE user_id = :user_id
+        ORDER BY photo_id DESC
+    """, {"user_id": user_id})
+
+    photos = cursor.fetchall()
+    conn.close()
+
+    # ✅ 이미지 경로 보정 (갤러리와 동일 로직)
+    photos_fixed = []
+    for p in photos:
+        image_path = p[3]  # image_path 컬럼
+        if not image_path.startswith("static/"):
+            image_path = os.path.join("static", image_path).replace("\\", "/")
+        image_url = url_for("static", filename=image_path.replace("static/", ""))
+        new_p = list(p)
+        new_p[3] = image_url  # 보정된 경로로 교체
+        photos_fixed.append(tuple(new_p))
+
+    return render_template(
+        "mypage.html",
+        user_name=user_name,
+        my_photos=photos_fixed
+    )
+
 
 
 # =========================================

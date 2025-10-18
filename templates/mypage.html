@@ -34,5 +34,23 @@ main_class %}mypage-container{% endblock %} {% block content %}
     <button class="active">내가 업로드한 사진</button>
     <button>좋아요한 사진</button>
   </div>
+  <div class="photo-grid">
+    {% if my_photos %} {% for photo in my_photos %}
+    <div class="photo-card" data-color="{{ photo[2] }}">
+      <div
+        class="photo-image"
+        style="background-image: url('{{ photo[3] }}');"
+      ></div>
+      <div class="photo-info">
+        <p class="description">{{ photo[1] }}</p>
+        <p class="location">📍 {{ photo[4] }}</p>
+        <p class="likes">💗 {{ photo[5] }}개</p>
+      </div>
+    </div>
+    {% endfor %} {% else %}
+    <p class="empty">아직 업로드한 사진이 없어요 📷</p>
+    {% endif %}
+  </div>
 </section>
+
 {% endblock %}
