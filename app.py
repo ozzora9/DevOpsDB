@@ -113,18 +113,20 @@ def main():
 def api_color():
     import random
     colors = [
-        {"name": "레드", "emoji": "❤️", "hex": "#FF6B6B"},
-        {"name": "오렌지", "emoji": "🧡", "hex": "#FFA94D"},
-        {"name": "옐로우", "emoji": "💛", "hex": "#FFD43B"},
-        {"name": "블루", "emoji": "💙", "hex": "#339AF0"},
-        {"name": "퍼플", "emoji": "💜", "hex": "#945EFB"},
-        {"name": "브라운", "emoji": "🤎", "hex": "#8B5E3C"},
-        {"name": "블랙", "emoji": "🖤", "hex": "#212529"},
-        {"name": "화이트", "emoji": "🤍", "hex": "#F8F9FA"},
+        {"id": 1, "key": "red", "name": "레드", "emoji": "❤️", "hex": "#FF4B5C"},
+        {"id": 2, "key": "orange", "name": "오렌지", "emoji": "🧡", "hex": "#FF8C42"},
+        {"id": 3, "key": "yellow", "name": "옐로우", "emoji": "💛", "hex": "#FFD93D"},
+        {"id": 4, "key": "green", "name": "그린", "emoji": "💚", "hex": "#4CAF50"},
+        {"id": 5, "key": "blue", "name": "블루", "emoji": "💙", "hex": "#4A90E2"},
+        {"id": 6, "key": "purple", "name": "퍼플", "emoji": "💜", "hex": "#A66DD4"},
+        {"id": 7, "key": "brown", "name": "브라운", "emoji": "🤎", "hex": "#8B5E3C"},
+        {"id": 8, "key": "black", "name": "블랙", "emoji": "🖤", "hex": "#222"},
+        {"id": 9, "key": "white", "name": "화이트", "emoji": "🤍", "hex": "#FFFFFF"},
     ]
     color = random.choice(colors)
     session['today_color'] = color
     return jsonify(color)
+
 
 
 # =========================================
