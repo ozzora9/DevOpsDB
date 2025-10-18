@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <title>이번 달 색상 트렌드 - ColorWalk</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+</head>
+
+<body class="trend-page">
+  <!-- ✅ 상단 메뉴바 (공통 유지) -->
+  <header>
+    <div class="nav-container">
+      <div class="logo">
+        <a href="/">
+          <span>🎨ColorWalk</span>
+        </a>
+      </div>
+      <nav class="menu">
+        <a href="/"><i class="fas fa-home"></i> Home</a>
+        <a href="/upload"><i class="fas fa-camera"></i> Upload</a>
+        <a href="/gallery/all"><i class="fas fa-image"></i> Gallery</a>
+        <a href="/trend" class="active"><i class="fas fa-chart-line"></i> Trend</a>
+        <a href="/mypage"><i class="fas fa-user"></i> My Page</a>
+      </nav>
+    </div>
+  </header>
+
+  <!-- ✅ 본문 -->
+  <main class="trend-container">
+    <!-- ✨ 타이틀 영역 -->
+    <section class="trend-intro">
+      <span class="badge">📊 실시간 트렌드</span>
+      <h1>이번 달의 색상 트렌드</h1>
+      <p>사람들이 가장 많이 선택한 색상을 확인해보세요</p>
+    </section>
+
+    <!-- 🩵 이번 달 대표 색상 -->
+    <section class="trend-highlight">
+      <div class="trend-main-box">
+        <div class="trend-color" style="background: linear-gradient(135deg, #339AF0, #22C8F7);"></div>
+        <div class="trend-info">
+          <h3>이달의 컬러 <span>💙 블루</span></h3>
+          <p>맑고 고요한 마음을 표현하는 색상<br>1,247명이 선택한 가장 인기 있는 색상입니다.</p>
+          <small>지난 달 대비 <span class="up">+15%</span> 증가</small>
+        </div>
+      </div>
+    </section>
+  <footer>
+    <p>© 2025 ColorWalk. 색상으로 감정을 공유하는 공간 🌈</p>
+  </footer>
+
+  <script src="{{ url_for('static', filename='js/trend_chart.js') }}"></script>
+</body>
+</html>

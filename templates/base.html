@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="ko">
+  <head>
+    <meta charset="UTF-8" />
+    <title>{% block title %}ColorWalk{% endblock %}</title>
+    <link
+      rel="stylesheet"
+      href="{{ url_for('static', filename='css/style.css') }}"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"
+    />
+  </head>
+
+  <body class="{% block body_class %}{% endblock %}">
+    <header>
+      <div class="nav-container">
+        <div class="logo">
+          <a href="/"><span>🎨ColorWalk</span></a>
+        </div>
+        <nav class="menu">
+          <a
+            href="/"
+            class="{% if request.path == '/' %}active{% endif %}"
+            ><i class="fas fa-home"></i> Home</a
+          >
+          <a
+            href="/upload"
+            class="{% if '/upload' in request.path %}active{% endif %}"
+            ><i class="fas fa-camera"></i> Upload</a
+          >
+          <a
+            href="/gallery/all"
+            class="{% if '/gallery' in request.path %}active{% endif %}"
+            ><i class="fas fa-image"></i> Gallery</a
+          >
+          <a
+            href="/trend"
+            class="{% if '/trend' in request.path %}active{% endif %}"
+            ><i class="fas fa-chart-line"></i> Trend</a
+          >
+          <a
+            href="/mypage"
+            class="{% if '/mypage' in request.path %}active{% endif %}"
+            ><i class="fas fa-user"></i> My Page</a
+          >
+        </nav>
+      </div>
+    </header>
+
+    <main>{% block content %}{% endblock %}</main>
+
+    <footer>
+      <p>© 2025 ColorWalk. 색상으로 감정을 공유하는 공간 🌈</p>
+    </footer>
+  </body>
+</html>

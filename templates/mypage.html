@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <title>My Page - ColorWalk</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+</head>
+<body class="mypage">
+
+<!-- ✅ 상단 메뉴바 (공통 구조 통일) -->
+<header>
+  <div class="nav-container">
+    <div class="logo">
+      <a href="/">
+        <span>🎨ColorWalk</span>
+      </a>
+    </div>
+    <nav class="menu">
+      <a href="/"><i class="fas fa-home"></i> Home</a>
+      <a href="/upload"><i class="fas fa-camera"></i> Upload</a>
+      <a href="/gallery/all"><i class="fas fa-image"></i> Gallery</a>
+      <a href="/trend"><i class="fas fa-chart-line"></i> Trend</a>
+      <a href="/mypage" class="active"><i class="fas fa-user"></i> My Page</a>
+    </nav>
+  </div>
+</header>
+
+
+  <!-- ✅ 본문 -->
+  <main class="mypage-container">
+
+<!-- 👤 프로필 카드 -->
+<section class="profile-card">
+  <div class="profile-left">
+    <div class="profile-icon">
+  <i class="fas fa-user"></i>
+</div>
+    <div class="profile-info">
+      <div class="profile-header">
+        <h2>{{ user_name }} <span>님의 컬러워크</span></h2>
+        <a href="{{ url_for('logout') }}" class="logout-btn">🚪 로그아웃</a>
+      </div>
+      <p>색상으로 감정을 기록하는 중 🌸</p>
+
+      <div class="profile-stats">
+        <span>📸 6개의 사진</span>
+        <span>💗 1,075개의 좋아요</span>
+        <span>🎨 가장 많이 찍은 색상: <b style="color:#339AF0;">💙 블루</b></span>
+      </div>
+    </div>
+  </div>
+</section>
+
+
+
+    <!-- 🖼️ 내가 업로드한 사진 -->
+    <section class="myphotos">  
+      <div class="tab-buttons">
+        <button class="active">내가 업로드한 사진</button>
+        <button>좋아요한 사진</button>
+      </div>
+
+  <footer>
+    <p>© 2025 ColorWalk. 색상으로 감정을 공유하는 공간 🌈</p>
+  </footer>
+
+
+</body>
+</html>

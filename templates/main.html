@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <title>ColorWalk 메인</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+</head>
+<body class="lucky-page">
+<header>
+  <div class="nav-container">
+    <div class="logo">
+      <a href="/">
+        <span>🎨ColorWalk</span>
+      </a>
+    </div>
+    <nav class="menu">
+      <a href="/"><i class="fas fa-home"></i> Home</a>
+      <a href="/upload"><i class="fas fa-camera"></i> Upload</a>
+      <a href="/gallery/all"><i class="fas fa-image"></i> Gallery</a>
+      <a href="/trend"><i class="fas fa-chart-line"></i> Trend</a>
+      <a href="/mypage"><i class="fas fa-user"></i> My Page</a>
+    </nav>
+  </div>
+</header>
+
+  <main>
+    <!-- 🎯 AI 추천 컬러 섹션 -->
+    <section class="ai-color-box">
+      <h3>✨ 오늘의 컬러</h3>
+
+      <!-- 컬러 카드 -->
+      <div class="color-card">
+        <div class="color-sample" id="color-sample"></div>
+        <div class="color-info">
+          <h4 id="color-name">💛 옐로우 (Yellow)</h4>
+          <p id="color-hex">#FFD43B</p>
+        </div>
+      </div>
+
+      <!-- 버튼 -->
+      <div class="btn-group">
+        <button id="upload-btn">📸 이 색상으로 사진 찍으러 가기</button>
+        <button id="refresh-btn" class="outline">🔄 다른 색상 보기</button>
+      </div>
+    </section>
+
+    <!-- 9가지 감성 컬러 -->
+    <section class="color-grid">
+      <h4>9가지 컬러</h4>
+      <div class="color-palette" id="color-palette">
+        <!-- 버튼 자동 생성됨 -->
+      </div>
+    </section>
+  </main>
+
+  <script src="{{ url_for('static', filename='js/lucky_color.js') }}"></script>
+</body>
+</html>

@@ -1,0 +1,20 @@
+{% extends "base.html" %}
+{% block title %}회원가입 - ColorWalk{% endblock %}
+{% block body_class %}register{% endblock %}
+{% block content %}
+<main class="auth-container">
+  <section class="auth-box">
+    <h2>📝 회원가입</h2>
+    <form method="POST" class="auth-form">
+      <input type="text" name="name" placeholder="닉네임" required>
+      <input type="email" name="email" placeholder="이메일" required>
+      <input type="password" name="password" placeholder="비밀번호" required>
+      <button type="submit" class="btn primary">회원가입</button>
+    </form>
+    <p class="auth-footer">
+      이미 계정이 있으신가요?
+      <a href="{{ url_for('login') }}">로그인</a>
+    </p>
+  </section>
+</main>
+{% endblock %}

@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <title>사진 업로드 - ColorWalk</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+</head>
+
+<body class="upload-page">
+  <header>
+    <div class="nav-container">
+      <div class="logo">
+        <a href="/"><span>🎨ColorWalk</span></a>
+      </div>
+      <nav class="menu">
+        <a href="/"><i class="fas fa-home"></i> Home</a>
+        <a href="/upload" class="active"><i class="fas fa-camera"></i> Upload</a>
+        <a href="/gallery/all"><i class="fas fa-image"></i> Gallery</a>
+        <a href="/trend"><i class="fas fa-chart-line"></i> Trend</a>
+        <a href="/mypage"><i class="fas fa-user"></i> My Page</a>
+      </nav>
+    </div>
+  </header>
+
+  <main class="upload-container">
+    <form id="upload-form" method="POST" enctype="multipart/form-data">
+      <!-- 🎨 선택된 색상 hidden으로 전달 -->
+      <input type="hidden" name="color_id" id="color_id" value="{{ color_id if color_id else '' }}">
+
+      <!-- 🎨 선택된 색상 자동 표시 영역 -->
+      <section class="color-select-box">
+        <h3>🎨 선택한 색상</h3>
+        <div class="ai-color-card" id="color-display">
+          <div class="ai-color-left">
+            <div class="ai-color-sample" id="color-sample"></div>
+            <div class="ai-color-info">
+              <h4 id="color-name">색상이 선택되지 않았어요</h4>
+              <small id="color-hex">#------</small>
+            </div>
+          </div>
+          <button type="button" class="btn primary select-btn">선택됨</button>
+        </div>
+      </section>
+
+      <!-- 📸 사진 업로드 -->
+      <section class="upload-box">
+        <h3>📷 사진 업로드</h3>
+        <div class="upload-area" id="upload-area">
+          <i class="fas fa-upload"></i>
+          <p>클릭하여 사진을 선택하세요<br><small>또는 드래그 앤 드롭</small></p>
+          <input type="file" id="file-input" name="image" accept="image/*" hidden>
+        </div>
+        <img id="preview" style="display:none; max-width:100%; margin-top:10px; border-radius:10px;">
+
+        <div class="input-group">
+          <label for="location">📍 위치</label>
+          <input type="text" id="location" name="location" placeholder="예: 서울 성수동, 부산 해운대 등">
+        </div>
+
+        <div class="input-group">
+          <label for="description">📝 설명</label>
+          <textarea id="description" name="description" rows="3" placeholder="이 색상과 함께한 순간에 대해 이야기해주세요."></textarea>
+        </div>
+
+        <button type="submit" class="btn primary upload-btn">업로드하기</button>
+      </section>
+    </form>
+  </main>
+
+  <footer>
+    <p>© 2025 ColorWalk. 색상으로 감정을 공유하는 공간 🌈</p>
+  </footer>
+
+  <script src="{{ url_for('static', filename='js/upload.js') }}"></script>
+</body>
+</html>
