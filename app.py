@@ -335,9 +335,7 @@ def trend():
 def mypage():
     if 'user_email' not in session:
         return redirect(url_for('login'))
-    return render_template('mypage.html',
-                           user_name=session.get('user_name'),
-                           user_email=session.get('user_email'))
+    return render_template('mypage.html', user_name=session.get('user_name'), user_email=session.get('user_email'))
 
 
 # =========================================

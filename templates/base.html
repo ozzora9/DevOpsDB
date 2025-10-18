@@ -49,7 +49,9 @@
       </div>
     </header>
 
-    <main>{% block content %}{% endblock %}</main>
+    <main class="{% block main_class %}{% endblock %}">
+      {% block content %}{% endblock %}
+    </main>
 
     <footer>
       <p>© 2025 ColorWalk. 색상으로 감정을 공유하는 공간 🌈</p>

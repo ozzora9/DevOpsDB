@@ -1,78 +1,72 @@
-<!DOCTYPE html>
-<html lang="ko">
-<head>
-  <meta charset="UTF-8" />
-  <title>갤러리 - ColorWalk</title>
-  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
-</head>
-
-<body class="gallery-page">
-  <!-- ✅ 상단 메뉴바 (공통) -->
-  <header>
-    <div class="nav-container">
-      <div class="logo">
-        <a href="/">
-          <span>🎨ColorWalk</span>
-        </a>
-      </div>
-      <nav class="menu">
-        <a href="/"><i class="fas fa-home"></i> Home</a>
-        <a href="/upload"><i class="fas fa-camera"></i> Upload</a>
-        <a href="/gallery/all" class="active"><i class="fas fa-image"></i> Gallery</a>
-        <a href="/trend"><i class="fas fa-chart-line"></i> Trend</a>
-        <a href="/mypage"><i class="fas fa-user"></i> My Page</a>
-      </nav>
-    </div>
-  </header>
-
-  <!-- ✅ 본문 -->
-  <main class="gallery-container">
-<!-- ✅ 상단 색상 정보 -->
+{% extends "base.html" %} {% block title %}갤러리 - ColorWalk{%
+endblock %} {% block body_class %}gallery-page{% endblock %} {% block
+main_class %}gallery-container{% endblock %} {% block content %}
 <section class="gallery-header">
   <div class="color-header">
-    <div class="color-icon" id="color-icon" style="background:#EDE7F6;"></div>
+    <div
+      class="color-icon"
+      id="color-icon"
+      style="background: #ede7f6"
+    ></div>
     <div class="color-text">
       <h2 id="gallery-title">전체 갤러리</h2>
       <p id="gallery-desc">#EDE7F6 • 모든 색상의 작품을 모아봤어요</p>
-      <small id="gallery-info">2개의 사진 • 1개는 내가 업로드한 사진</small>
+      <small id="gallery-info"
+        >2개의 사진 • 1개는 내가 업로드한 사진</small
+      >
     </div>
   </div>
 </section>
-
-
-    <!-- 색상 카테고리 -->
-    <section class="color-filter">
-      <h3>🎨 색상 카테고리</h3>
-      <div class="filter-buttons">
-        <button class="filter-btn active" data-color="all">전체</button>
-        <button class="filter-btn red" data-color="red">❤️ 레드</button>
-        <button class="filter-btn orange" data-color="orange">🧡 오렌지</button>
-        <button class="filter-btn yellow" data-color="yellow">💛 옐로우</button>
-        <button class="filter-btn green" data-color="green">💚 그린</button>
-        <button class="filter-btn blue" data-color="blue">💙 블루</button>
-        <button class="filter-btn purple" data-color="purple">💜 퍼플</button>
-        <button class="filter-btn brown" data-color="brown">🤎 브라운</button>
-        <button class="filter-btn black" data-color="black">🖤 블랙</button>
-        <button class="filter-btn white" data-color="white">🤍 화이트</button>
-      </div>
-    </section>
-
-    <!-- 🖼️ 갤러리 카드들 -->
+<section class="color-filter">
+  <h3>🎨 색상 카테고리</h3>
+  <div class="filter-buttons">
+    <button class="filter-btn active" data-color="all">전체</button>
+    <button class="filter-btn red" data-color="red">❤️ 레드</button>
+    <button class="filter-btn orange" data-color="orange">
+      🧡 오렌지
+    </button>
+    <button class="filter-btn yellow" data-color="yellow">
+      💛 옐로우
+    </button>
+    <button class="filter-btn green" data-color="green">
+      💚 그린
+    </button>
+    <button class="filter-btn blue" data-color="blue">💙 블루</button>
+    <button class="filter-btn purple" data-color="purple">
+      💜 퍼플
+    </button>
+    <button class="filter-btn brown" data-color="brown">
+      🤎 브라운
+    </button>
+    <button class="filter-btn black" data-color="black">
+      🖤 블랙
+    </button>
+    <button class="filter-btn white" data-color="white">
+      🤍 화이트
+    </button>
+  </div>
+</section>
 <section class="photo-gallery">
   {% for photo in photos %}
-  <div class="photo-card"
-       data-color="{% if photo[8] == 1 %}red{% elif photo[8] == 2 %}orange{% elif photo[8] == 3 %}yellow
+  <div
+    class="photo-card"
+    data-color="{% if photo[8] == 1 %}red{% elif photo[8] == 2 %}orange{% elif photo[8] == 3 %}yellow
                     {% elif photo[8] == 4 %}green{% elif photo[8] == 5 %}blue{% elif photo[8] == 6 %}purple
-                    {% elif photo[8] == 7 %}brown{% elif photo[8] == 8 %}black{% elif photo[8] == 9 %}white{% else %}unknown{% endif %}">
-    <div class="photo-image" style="background-image: url('{{ photo[5] }}');"></div>
+                    {% elif photo[8] == 7 %}brown{% elif photo[8] == 8 %}black{% elif photo[8] == 9 %}white{% else %}unknown{% endif %}"
+  >
+    <div
+      class="photo-image"
+      style="background-image: url('{{ photo[5] }}');"
+    ></div>
     <div class="photo-info">
       <div class="photo-meta">
-        <span class="color-label"
-              style="background: {% if photo[8] == 1 %}#FF4B5C{% elif photo[8] == 2 %}#FF8C42
+        <span
+          class="color-label"
+          style="background: {% if photo[8] == 1 %}#FF4B5C{% elif photo[8] == 2 %}#FF8C42
               {% elif photo[8] == 3 %}#FFD93D{% elif photo[8] == 4 %}#4CAF50{% elif photo[8] == 5 %}#4A90E2
               {% elif photo[8] == 6 %}#A66DD4{% elif photo[8] == 7 %}#8B5E3C{% elif photo[8] == 8 %}#222
-              {% elif photo[8] == 9 %}#FFFFFF{% endif %};"></span>
+              {% elif photo[8] == 9 %}#FFFFFF{% endif %};"
+        ></span>
         <p class="color-name">{{ photo[2] }}</p>
       </div>
       <p class="description">{{ photo[1] }}</p>
@@ -81,14 +75,5 @@
   </div>
   {% endfor %}
 </section>
-
-    </section>
-  </main>
-
-  <footer>
-    <p>© 2025 ColorWalk. 색상으로 감정을 공유하는 공간 🌈</p>
-  </footer>
-
-  <script src="{{ url_for('static', filename='js/gallery.js') }}"></script>
-</body>
-</html>
+<script src="{{ url_for('static', filename='js/gallery.js') }}"></script>
+{% endblock %}
