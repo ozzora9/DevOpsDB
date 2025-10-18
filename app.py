@@ -248,64 +248,48 @@ def extract_metadata(image_path):
 # 갤러리
 # =========================================
 @app.route("/gallery")
-@app.route("/gallery/<color_id>")
-def gallery(color_id=None):
+@app.route("/gallery/<color_key>")
+def gallery(color_key=None):
     conn = get_connection()
     cur = conn.cursor()
 
-    # 🔹 color_id가 all이거나 None이면 전체 표시
-    if not color_id or str(color_id).lower() == "all":
+    # ✅ color_key가 없거나 "all"이면 전체 보기
+    if not color_key or color_key.lower() == "all":
         cur.execute("""
             SELECT p.photo_id, u.name, c.color_name, p.description, p.location,
-                   p.image_path, NVL(p.likes_count, 0), p.created_at, c.color_id
+                p.image_path, NVL(p.likes_count, 0), p.created_at, c.color_key
             FROM PHOTOS p
             JOIN USERS u ON p.user_id = u.user_id
             JOIN COLOR_CATEGORIES c ON p.color_id = c.color_id
             ORDER BY p.created_at DESC
         """)
     else:
-        try:
-            cid = int(color_id)
-        except ValueError:
-            cid = None
-
-        if cid:
-            cur.execute("""
-                SELECT p.photo_id, u.name, c.color_name, p.description, p.location,
-                       p.image_path, NVL(p.likes_count, 0), p.created_at, c.color_id
-                FROM PHOTOS p
-                JOIN USERS u ON p.user_id = u.user_id
-                JOIN COLOR_CATEGORIES c ON p.color_id = c.color_id
-                WHERE p.color_id = :cid
-                ORDER BY p.created_at DESC
-            """, {"cid": cid})
-        else:
-            # 잘못된 ID일 경우 전체로 fallback
-            cur.execute("""
-                SELECT p.photo_id, u.name, c.color_name, p.description, p.location,
-                       p.image_path, NVL(p.likes_count, 0), p.created_at, c.color_id
-                FROM PHOTOS p
-                JOIN USERS u ON p.user_id = u.user_id
-                JOIN COLOR_CATEGORIES c ON p.color_id = c.color_id
-                ORDER BY p.created_at DESC
-            """)
+        # ✅ color_key로 필터링
+        cur.execute("""
+            SELECT p.photo_id, u.name, c.color_name, p.description, p.location,
+                p.image_path, NVL(p.likes_count, 0), p.created_at, c.color_key
+            FROM PHOTOS p
+            JOIN USERS u ON p.user_id = u.user_id
+            JOIN COLOR_CATEGORIES c ON p.color_id = c.color_id
+            WHERE LOWER(c.color_key) = LOWER(:key)
+            ORDER BY p.created_at DESC
+        """, {"key": color_key})
 
     photos = cur.fetchall()
     conn.close()
 
-    # 🔹 경로 보정 (uploads → static/uploads)
+    # ✅ 이미지 경로 보정
     photos_fixed = []
     for p in photos:
         image_path = p[5]
         if not image_path.startswith("static/"):
             image_path = os.path.join("static", image_path).replace("\\", "/")
-
-        image_url = url_for('static', filename=image_path.replace("static/", ""))
+        image_url = url_for("static", filename=image_path.replace("static/", ""))
         new_p = list(p)
         new_p[5] = image_url
         photos_fixed.append(tuple(new_p))
 
-    return render_template("gallery.html", photos=photos_fixed, color_id=color_id)
+    return render_template("gallery.html", photos=photos_fixed, color_key=color_key)
 
 
 # =========================================
