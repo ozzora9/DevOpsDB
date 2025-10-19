@@ -331,9 +331,9 @@ def like(photo_id):
 def trend():
     return render_template('trend.html')
 
-
-import os
-from flask import url_for
+@app.route('/test')
+def test():
+    return render_template('test.html')
 
 @app.route("/mypage")
 def mypage():

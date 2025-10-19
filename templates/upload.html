@@ -1,6 +1,7 @@
-{% extends "base.html" %} {% block title %}사진 업로드 - ColorWalk{%
-endblock %} {% block body_class %}upload-page{% endblock %} {% block
-main_class %}upload-container{% endblock %} {% block content %}
+{% extends "base.html" %} {% block title %}사진 업로드 -
+ColorWalk{%endblock %} {% block body_class %}upload-page{% endblock %}
+{% block main_class %}upload-container{% endblock %} {% block content
+%}
 
 <form id="upload-form" method="POST" enctype="multipart/form-data">
   <!-- 🎨 선택된 색상 hidden으로 전달 -->
@@ -81,6 +82,6 @@ main_class %}upload-container{% endblock %} {% block content %}
     </button>
   </section>
 </form>
-
+<script src="https://unpkg.com/fast-average-color@9.5.0/dist/index.browser.min.js"></script>
 <script src="{{ url_for('static', filename='js/upload.js') }}"></script>
 {% endblock %}
