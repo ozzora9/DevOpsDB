@@ -253,6 +253,15 @@ def gallery(color_key=None):
     conn = get_connection()
     cur = conn.cursor()
 
+    # ✅ 전체 사진 개수
+    cur.execute("SELECT COUNT(*) FROM photos")
+    all_photo = cur.fetchone()[0]
+
+    # ✅ 현재 로그인한 유저의 업로드 사진 개수
+    user_id = session['user_id']
+    cur.execute("SELECT COUNT(*) FROM photos WHERE user_id = :1", [user_id])
+    upload_photo = cur.fetchone()[0]
+
     # ✅ color_key가 없거나 "all"이면 전체 보기
     if not color_key or color_key.lower() == "all":
         cur.execute("""
@@ -271,9 +280,9 @@ def gallery(color_key=None):
             FROM PHOTOS p
             JOIN USERS u ON p.user_id = u.user_id
             JOIN COLOR_CATEGORIES c ON p.color_id = c.color_id
-            WHERE LOWER(c.color_key) = LOWER(:key)
+            WHERE LOWER(c.color_key) = LOWER(:1)
             ORDER BY p.created_at DESC
-        """, {"key": color_key})
+        """, [color_key])
 
     photos = cur.fetchall()
     conn.close()
@@ -289,7 +298,13 @@ def gallery(color_key=None):
         new_p[5] = image_url
         photos_fixed.append(tuple(new_p))
 
-    return render_template("gallery.html", photos=photos_fixed, color_key=color_key)
+    return render_template(
+        "gallery.html",
+        all_photo=all_photo,
+        upload_photo=upload_photo,
+        photos=photos_fixed,
+        color_key=color_key
+    )
 
 
 # =========================================

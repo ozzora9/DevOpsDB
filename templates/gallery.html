@@ -12,7 +12,8 @@ main_class %}gallery-container{% endblock %} {% block content %}
       <h2 id="gallery-title">전체 갤러리</h2>
       <p id="gallery-desc">#EDE7F6 • 모든 색상의 작품을 모아봤어요</p>
       <small id="gallery-info"
-        >2개의 사진 • 1개는 내가 업로드한 사진</small
+        >{{ all_photo }}개의 사진 • {{ upload_photo }}개는 내가
+        업로드한 사진</small
       >
     </div>
   </div>
@@ -62,10 +63,10 @@ main_class %}gallery-container{% endblock %} {% block content %}
       <div class="photo-meta">
         <span
           class="color-label"
-          style="background: {% if photo[8] == 1 %}#FF4B5C{% elif photo[8] == 2 %}#FF8C42
-              {% elif photo[8] == 3 %}#FFD93D{% elif photo[8] == 4 %}#4CAF50{% elif photo[8] == 5 %}#4A90E2
-              {% elif photo[8] == 6 %}#A66DD4{% elif photo[8] == 7 %}#8B5E3C{% elif photo[8] == 8 %}#222
-              {% elif photo[8] == 9 %}#FFFFFF{% endif %};"
+          style="background: {% if photo[8] == 'red' %}#FF4B5C{% elif photo[8] == 'orange' %}#FF8C42
+              {% elif photo[8] == 'yellow' %}#FFD93D{% elif photo[8] == 'green' %}#4CAF50{% elif photo[8] == 'blue' %}#4A90E2
+              {% elif photo[8] == 'purple' %}#A66DD4{% elif photo[8] == 'brown' %}#8B5E3C{% elif photo[8] == 'black' %}#222
+              {% elif photo[8] == 'white' %}#FFFFFF{% endif %};"
         ></span>
         <p class="color-name">{{ photo[2] }}</p>
       </div>
