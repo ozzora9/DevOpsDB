@@ -51,6 +51,7 @@ main_class %}gallery-container{% endblock %} {% block content %}
   {% for photo in photos %}
   <div
     class="photo-card"
+      data-photo-id="{{ photo[0] }}" 
     data-color="{% if photo[8] == 1 %}red{% elif photo[8] == 2 %}orange{% elif photo[8] == 3 %}yellow
                     {% elif photo[8] == 4 %}green{% elif photo[8] == 5 %}blue{% elif photo[8] == 6 %}purple
                     {% elif photo[8] == 7 %}brown{% elif photo[8] == 8 %}black{% elif photo[8] == 9 %}white{% else %}unknown{% endif %}"
@@ -75,6 +76,38 @@ main_class %}gallery-container{% endblock %} {% block content %}
     </div>
   </div>
   {% endfor %}
+
+    <!-- 🪟 팝업 모달 -->
+<div id="photoModal" class="modal">
+  <div class="modal-content">
+    <span class="close-btn">&times;</span>
+
+    <!-- 이미지 -->
+    <img id="modalImage" src="" alt="Photo" class="modal-img" />
+
+    <!-- 상세정보 -->
+    <div class="modal-info">
+      <p id="modalDesc"></p>
+      <p id="modalLoc"></p>
+      <p id="modalShotTime"></p>
+      <p id="modalUser"></p>
+    </div>
+
+    <!-- 좋아요 -->
+    <div class="like-section">
+      ❤️ <span id="likeCount">0</span>
+      <button id="likeBtn">좋아요</button>
+    </div>
+
+    <!-- 댓글 -->
+    <div class="comment-section">
+      <h4>💬 댓글</h4>
+      <div id="commentList"></div>
+      <textarea id="commentInput" placeholder="댓글을 입력하세요"></textarea>
+      <button id="commentSubmit">등록</button>
+    </div>
+  </div>
+</div>
 </section>
 <script src="{{ url_for('static', filename='js/gallery.js') }}"></script>
 {% endblock %}
