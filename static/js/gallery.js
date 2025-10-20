@@ -63,3 +63,93 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   });
 });
+  // ===================================================
+  // 🪟 사진 클릭 시 모달 열기 기능 추가
+  // ===================================================
+  const modal = document.getElementById("photoModal");
+  const closeBtn = document.querySelector(".close-btn");
+  const modalImg = document.getElementById("modalImage");
+  const modalDesc = document.getElementById("modalDesc");
+  const modalLoc = document.getElementById("modalLoc");
+  const modalUser = document.getElementById("modalUser");
+  const modalShotTime = document.getElementById("modalShotTime");
+  const likeCount = document.getElementById("likeCount");
+  const likeBtn = document.getElementById("likeBtn");
+  const commentList = document.getElementById("commentList");
+  const commentInput = document.getElementById("commentInput");
+  const commentSubmit = document.getElementById("commentSubmit");
+
+  // ✅ 댓글 목록 렌더링 함수
+  const renderComments = (comments) => {
+    commentList.innerHTML = "";
+    comments.forEach((c) => {
+      const p = document.createElement("p");
+      p.textContent = `💬 ${c.username}: ${c.content}`;
+      commentList.appendChild(p);
+    });
+  };
+
+  // ✅ 각 사진 카드 클릭 시 상세보기
+  document.querySelectorAll(".photo-card").forEach((card) => {
+    card.addEventListener("click", async () => {
+      const photoId = card.getAttribute("data-photo-id");
+      modal.style.display = "flex";
+
+      try {
+        const res = await fetch(`/photo/${photoId}`);
+        const data = await res.json();
+
+        // 모달 채우기
+if (data.image_path.startsWith("static/")) {
+  modalImg.src = `/${data.image_path}`;
+} else {
+  modalImg.src = `/static/${data.image_path}`;
+}
+
+modalDesc.textContent = data.description || "설명 없음";
+modalLoc.textContent = `📍 ${data.location || "위치 미등록"}`;
+modalUser.textContent = `👤 ${data.username}`;
+modalShotTime.textContent = `📅 ${data.shot_time || "촬영시간 정보 없음"}`;
+likeCount.textContent = data.likes_count;
+likeBtn.textContent = data.liked ? "❤️ 취소" : "🤍 좋아요";
+
+        renderComments(data.comments);
+
+        // 좋아요 버튼 동작
+        likeBtn.onclick = async () => {
+          const res = await fetch(`/like/${photoId}`, { method: "POST" });
+          const result = await res.json();
+          likeCount.textContent = result.likes_count;
+          likeBtn.textContent = result.liked ? "❤️ 취소" : "🤍 좋아요";
+        };
+
+        // 댓글 등록
+        commentSubmit.onclick = async () => {
+          const content = commentInput.value.trim();
+          if (!content) return;
+          const res = await fetch(`/comment/${photoId}`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ content }),
+          });
+          const result = await res.json();
+          renderComments(result.comments);
+          commentInput.value = "";
+        };
+      } catch (err) {
+        console.error("❌ 사진 상세 로딩 실패:", err);
+      }
+    });
+  });
+
+  // ✅ 모달 닫기 버튼
+  closeBtn.addEventListener("click", () => {
+    modal.style.display = "none";
+  });
+
+  // ✅ 모달 바깥 클릭 시 닫기
+  window.addEventListener("click", (e) => {
+    if (e.target === modal) {
+      modal.style.display = "none";
+    }
+  });

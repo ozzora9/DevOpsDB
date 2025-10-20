@@ -942,6 +942,154 @@ body.gallery-page {
     transform: translateY(0);
   }
 }
+/* =========================
+   🪟 모달창 디자인 개선 (명시형 transition 포함)
+========================= */
+.modal {
+  display: none;
+  position: fixed;
+  z-index: 1000;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0,0,0,0.6);
+  justify-content: center;
+  align-items: center;
+}
+
+.modal-content {
+  background: #fff;
+  border-radius: 16px;
+  padding: 24px;
+  width: 520px;
+  max-height: 90%;
+  overflow-y: auto;
+  position: relative;
+  box-shadow: 0 4px 25px rgba(0,0,0,0.25);
+}
+
+/* 닫기 버튼 */
+.close-btn {
+  position: absolute;
+  right: 15px;
+  top: 10px;
+  font-size: 22px;
+  cursor: pointer;
+}
+
+/* 이미지 크기 조정 (세로 비율 제한) */
+.modal-img {
+  width: 100%;
+  max-height: 300px; /* ✅ 세로 길이 제한 */
+  object-fit: cover;
+  border-radius: 10px;
+  margin-bottom: 16px;
+}
+
+/* ✅ 상세 정보 가로 정렬 */
+.modal-info {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 10px;
+  font-size: 14px;
+  color: #444;
+}
+
+.modal-info p {
+  margin: 0;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+/* 좋아요 영역 */
+.like-section {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  justify-content: flex-end; /* ✅ 오른쪽 정렬 */
+  margin-top: 5px;
+  border-top: 1px solid #eee;
+  padding-top: 10px;
+}
+
+.like-section button {
+  border: none;
+  background: #f6f6f6;
+  border-radius: 8px;
+  padding: 5px 10px;
+  cursor: pointer;
+
+  /* ✅ 명시형 transition */
+  transition-property: background-color;
+  transition-duration: 0.2s;
+  transition-timing-function: ease;
+  transition-delay: 0s;
+}
+
+.like-section button:hover {
+  background-color: #eaeaea;
+}
+
+/* =========================
+   💬 댓글 영역 (입력창 아래, 버튼 오른쪽 정렬)
+========================= */
+.comment-section {
+  margin-top: 16px;
+  border-top: 1px solid #eee;
+  padding-top: 10px;
+}
+
+.comment-section h4 {
+  margin-bottom: 8px;
+}
+
+#commentList {
+  margin-bottom: 10px;
+}
+
+/* ✅ 댓글 입력창은 가로 100% 그대로 유지 */
+.comment-section textarea {
+  width: 100%;
+  height: 60px;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  padding: 6px 8px;
+  resize: none;
+  font-size: 14px;
+  box-sizing: border-box;
+  margin-bottom: 8px; /* ✅ 버튼과의 간격 추가 */
+}
+
+/* ✅ 등록 버튼은 입력창 아래 오른쪽 정렬 */
+.comment-section button {
+  display: block;
+  margin-left: auto; /* 오른쪽 정렬 */
+  height: 36px;
+  padding: 0 18px;
+  border: none;
+  background-color: #4A90E2;
+  color: white;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 14px;
+
+  /* 명시형 transition */
+  transition-property: background-color;
+  transition-duration: 0.2s;
+  transition-timing-function: ease;
+  transition-delay: 0s;
+}
+
+.comment-section button:hover {
+  background-color: #3b78c7;
+}
+
+
 
 /* ====================================================== */
 /* 📈 TREND PAGE */

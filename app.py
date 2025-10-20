@@ -307,21 +307,110 @@ def gallery(color_key=None):
     )
 
 
+
 # =========================================
-# 좋아요
+# 사진 상세 보기 API (팝업용)
 # =========================================
-@app.route('/like/<int:photo_id>')
-def like(photo_id):
+@app.route('/photo/<int:photo_id>')
+def photo_detail(photo_id):
+    user_id = session.get("user_id")
     conn = get_connection()
     cur = conn.cursor()
+
     cur.execute("""
-        UPDATE PHOTOS
-        SET likes_count = NVL(likes_count, 0) + 1
-        WHERE photo_id = :photo_id
+        SELECT p.photo_id, u.name, p.description, p.location, p.image_path,
+        p.shot_time, p.likes_count, p.created_at
+        FROM PHOTOS p
+        JOIN USERS u ON p.user_id = u.user_id
+        WHERE p.photo_id = :photo_id
     """, {"photo_id": photo_id})
-    conn.commit()
+    photo = cur.fetchone()
+
+    cur.execute("SELECT COUNT(*) FROM likes WHERE photo_id = :photo_id", {"photo_id": photo_id})
+    likes_count = cur.fetchone()[0]
+
+    cur.execute("SELECT 1 FROM likes WHERE photo_id = :photo_id AND user_id = :user_id",
+                {"photo_id": photo_id, "user_id": user_id})
+    liked = bool(cur.fetchone())
+
+    cur.execute("""
+        SELECT c.content, u.name
+        FROM comments c
+        JOIN users u ON c.user_id = u.user_id
+        WHERE c.photo_id = :photo_id ORDER BY c.created_at ASC
+    """, {"photo_id": photo_id})
+    comments = [{"username": r[1], "content": r[0]} for r in cur.fetchall()]
+
     conn.close()
-    return redirect(request.referrer or url_for('main'))
+    return jsonify({
+        "photo_id": photo[0],
+        "username": photo[1],
+        "description": photo[2],
+        "location": photo[3],
+        "image_path": photo[4],
+        "shot_time": photo[5],
+        "likes_count": likes_count,
+        "liked": liked,
+        "comments": comments
+    })
+
+
+# =========================================
+# 좋아요 토글
+# =========================================
+@app.route('/like/<int:photo_id>', methods=['POST'])
+def toggle_like(photo_id):
+    user_id = session.get("user_id")
+    conn = get_connection()
+    cur = conn.cursor()
+
+    cur.execute("SELECT like_id FROM likes WHERE photo_id = :photo_id AND user_id = :user_id",
+                {"photo_id": photo_id, "user_id": user_id})
+    existing = cur.fetchone()
+
+    if existing:
+        cur.execute("DELETE FROM likes WHERE like_id = :id", {"id": existing[0]})
+        liked = False
+    else:
+        cur.execute("""
+            INSERT INTO likes (photo_id, user_id, created_at)
+            VALUES (:photo_id, :user_id, SYSTIMESTAMP)
+        """, {"photo_id": photo_id, "user_id": user_id})
+        liked = True
+
+    conn.commit()
+    cur.execute("SELECT COUNT(*) FROM likes WHERE photo_id = :photo_id", {"photo_id": photo_id})
+    likes_count = cur.fetchone()[0]
+    conn.close()
+    return jsonify({"liked": liked, "likes_count": likes_count})
+
+
+# =========================================
+# 댓글 등록
+# =========================================
+@app.route('/comment/<int:photo_id>', methods=['POST'])
+def add_comment(photo_id):
+    user_id = session.get("user_id")
+    content = request.json.get("content", "")
+    conn = get_connection()
+    cur = conn.cursor()
+
+    cur.execute("""
+        INSERT INTO comments (photo_id, user_id, content, created_at)
+        VALUES (:photo_id, :user_id, :content, SYSTIMESTAMP)
+    """, {"photo_id": photo_id, "user_id": user_id, "content": content})
+    conn.commit()
+
+    cur.execute("""
+        SELECT c.content, u.name
+        FROM comments c
+        JOIN users u ON c.user_id = u.user_id
+        WHERE c.photo_id = :photo_id ORDER BY c.created_at ASC
+    """, {"photo_id": photo_id})
+    comments = [{"username": r[1], "content": r[0]} for r in cur.fetchall()]
+    conn.close()
+    return jsonify({"comments": comments})
+
 
 
 # =========================================
