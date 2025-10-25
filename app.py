@@ -132,21 +132,34 @@ def api_color():
 # =========================================
 # EXIF GPS → 소수점 변환 유틸
 # =========================================
-def convert_to_decimal(gps_data):
-    """EXIF GPS 데이터를 (도, 분, 초) → 소수점 형식으로 변환"""
-    if not gps_data or len(gps_data) != 3:
+def convert_to_decimal(value):
+    """EXIF GPS 데이터를 10진수(float)로 변환"""
+    if not value:
         return None
     try:
-        deg = gps_data[0][0] / gps_data[0][1]
-        minutes = gps_data[1][0] / gps_data[1][1]
-        seconds = gps_data[2][0] / gps_data[2][1]
-        return round(deg + (minutes / 60.0) + (seconds / 3600.0), 6)
-    except Exception:
+        # (도, 분, 초) 형식
+        if isinstance(value, (list, tuple)) and len(value) == 3:
+            def _to_float(x):
+                return x[0] / x[1] if isinstance(x, tuple) else float(x)
+            deg = _to_float(value[0])
+            minutes = _to_float(value[1])
+            seconds = _to_float(value[2])
+            return round(deg + (minutes / 60.0) + (seconds / 3600.0), 6)
+        # 이미 float이거나 int일 때
+        elif isinstance(value, (float, int)):
+            return round(float(value), 6)
+        # 문자열인 경우
+        elif isinstance(value, str):
+            return round(float(value), 6)
+        else:
+            return None
+    except Exception as e:
+        print("⚠️ GPS 변환 오류:", e)
         return None
 
 
 # =========================================
-# 업로드
+# 업로드 (촬영시간 + 위도/경도 완전 추출)
 # =========================================
 @app.route('/upload', methods=['GET', 'POST'])
 def upload():
@@ -154,7 +167,6 @@ def upload():
         color_id = request.args.get('color_id')
         return render_template('upload.html', color_id=color_id)
 
-    # 로그인 확인
     user_id = session.get("user_id")
     if not user_id:
         return "<h3>⚠️ 로그인 후 이용해주세요.</h3>"
@@ -167,35 +179,38 @@ def upload():
     if not file:
         return "<h3>⚠️ 이미지는 반드시 선택해야 합니다.</h3>"
 
-    # 이미지 저장 (상대 경로)
     filename = secure_filename(file.filename)
     save_path = os.path.join(app.config['UPLOAD_FOLDER'], filename)
     file.save(save_path)
-
-    # DB에는 'uploads/파일명'만 저장 (static 제외)
     db_path = f"uploads/{filename}"
 
-    # EXIF 메타데이터 추출
     gps_lat, gps_lon, shot_time = None, None, None
     try:
         img = Image.open(save_path)
         exif_data = img._getexif()
         if exif_data:
+            gps_info = {}
             for tag_id, value in exif_data.items():
                 tag = TAGS.get(tag_id, tag_id)
-                if tag == 'DateTimeOriginal':
+                if tag == "DateTimeOriginal":
                     shot_time = value
-                elif tag == 'GPSInfo':
-                    gps_info = {}
+                elif tag == "GPSInfo":
                     for t in value:
                         sub_tag = GPSTAGS.get(t, t)
                         gps_info[sub_tag] = value[t]
-                    gps_lat = convert_to_decimal(gps_info.get('GPSLatitude'))
-                    gps_lon = convert_to_decimal(gps_info.get('GPSLongitude'))
-    except Exception:
-        pass  # 메타데이터 없거나 파싱 실패해도 업로드는 진행
 
-    # DB 저장
+            if gps_info:
+                gps_lat = convert_to_decimal(gps_info.get("GPSLatitude"))
+                gps_lon = convert_to_decimal(gps_info.get("GPSLongitude"))
+                # ✅ Ref값으로 북위/남위, 동경/서경 보정
+                if gps_info.get("GPSLatitudeRef") == "S":
+                    gps_lat = -gps_lat
+                if gps_info.get("GPSLongitudeRef") == "W":
+                    gps_lon = -gps_lon
+    except Exception as e:
+        print("⚠️ EXIF 파싱 실패:", e)
+
+    # ✅ DB 저장
     conn = get_connection()
     cur = conn.cursor()
     cur.execute("""
@@ -219,7 +234,6 @@ def upload():
     conn.commit()
     conn.close()
 
-    # 업로드 후 해당 색상 카테고리로 이동 (경로 변수 방식)
     return redirect(url_for("gallery", color_id=color_id, t=int(time.time())))
 
 
@@ -358,31 +372,49 @@ def photo_detail(photo_id):
 # =========================================
 # 좋아요 토글
 # =========================================
-@app.route('/like/<int:photo_id>', methods=['POST'])
+@app.route("/like/<int:photo_id>", methods=["POST"])
 def toggle_like(photo_id):
-    user_id = session.get("user_id")
+    if "user_id" not in session:
+        return jsonify({"error": "로그인 필요"}), 401
+
+    user_id = session["user_id"]
     conn = get_connection()
     cur = conn.cursor()
 
-    cur.execute("SELECT like_id FROM likes WHERE photo_id = :photo_id AND user_id = :user_id",
-                {"photo_id": photo_id, "user_id": user_id})
+    # 이미 좋아요했는지 확인
+    cur.execute("""
+        SELECT like_id FROM likes 
+        WHERE photo_id = :photo_id AND user_id = :user_id
+    """, {"photo_id": photo_id, "user_id": user_id})
     existing = cur.fetchone()
 
     if existing:
+        # ✅ 좋아요 취소
         cur.execute("DELETE FROM likes WHERE like_id = :id", {"id": existing[0]})
-        liked = False
+        action = "unliked"
     else:
+        # ✅ 좋아요 추가
         cur.execute("""
             INSERT INTO likes (photo_id, user_id, created_at)
             VALUES (:photo_id, :user_id, SYSTIMESTAMP)
         """, {"photo_id": photo_id, "user_id": user_id})
-        liked = True
+        action = "liked"
+
+    # ✅ 변경 후 현재 좋아요 수 다시 계산
+    cur.execute("SELECT COUNT(*) FROM likes WHERE photo_id = :photo_id", {"photo_id": photo_id})
+    like_count = cur.fetchone()[0]
+
+    # ✅ photos 테이블의 likes_count 컬럼 갱신
+    cur.execute("""
+        UPDATE photos
+        SET likes_count = :count
+        WHERE photo_id = :photo_id
+    """, {"count": like_count, "photo_id": photo_id})
 
     conn.commit()
-    cur.execute("SELECT COUNT(*) FROM likes WHERE photo_id = :photo_id", {"photo_id": photo_id})
-    likes_count = cur.fetchone()[0]
     conn.close()
-    return jsonify({"liked": liked, "likes_count": likes_count})
+
+    return jsonify({"status": action, "like_count": like_count})
 
 
 # =========================================
@@ -426,7 +458,7 @@ def test():
 
 @app.route("/mypage")
 def mypage():
-    # 로그인 안 되어 있으면 로그인 페이지로 이동
+    # ✅ 로그인 여부 확인
     if "user_email" not in session:
         return redirect(url_for("login"))
 
@@ -436,32 +468,50 @@ def mypage():
     conn = get_connection()
     cursor = conn.cursor()
 
-    # ✅ 현재 로그인한 사용자의 사진만 조회
+    # ✅ 내가 업로드한 사진
     cursor.execute("""
         SELECT photo_id, description, color_id, image_path, location, likes_count
         FROM photos
         WHERE user_id = :user_id
         ORDER BY photo_id DESC
     """, {"user_id": user_id})
+    my_photos = cursor.fetchall()
 
-    photos = cursor.fetchall()
+    # ✅ 내가 좋아요한 사진
+    cursor.execute("""
+        SELECT p.photo_id, p.description, p.color_id, p.image_path, p.location, p.likes_count
+        FROM photos p
+        JOIN likes l ON p.photo_id = l.photo_id
+        WHERE l.user_id = :user_id
+        ORDER BY l.created_at DESC
+    """, {"user_id": user_id})
+    liked_photos = cursor.fetchall()
+
     conn.close()
 
-    # ✅ 이미지 경로 보정 (갤러리와 동일 로직)
-    photos_fixed = []
-    for p in photos:
-        image_path = p[3]  # image_path 컬럼
-        if not image_path.startswith("static/"):
-            image_path = os.path.join("static", image_path).replace("\\", "/")
-        image_url = url_for("static", filename=image_path.replace("static/", ""))
-        new_p = list(p)
-        new_p[3] = image_url  # 보정된 경로로 교체
-        photos_fixed.append(tuple(new_p))
+    # ✅ 이미지 경로 보정 함수
+    def fix_image_path(photo_rows):
+        fixed = []
+        for p in photo_rows:
+            image_path = p[3]
+            if not image_path.startswith("static/"):
+                image_path = os.path.join("static", image_path).replace("\\", "/")
+            image_url = url_for("static", filename=image_path.replace("static/", ""))
+            new_p = list(p)
+            new_p[3] = image_url
+            fixed.append(tuple(new_p))
+        return fixed
 
+    # ✅ 경로 보정
+    my_photos_fixed = fix_image_path(my_photos)
+    liked_photos_fixed = fix_image_path(liked_photos)
+
+    # ✅ 렌더링
     return render_template(
         "mypage.html",
         user_name=user_name,
-        my_photos=photos_fixed
+        my_photos=my_photos_fixed,
+        liked_photos=liked_photos_fixed
     )
 
 

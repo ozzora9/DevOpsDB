@@ -1,6 +1,9 @@
-{% extends "base.html" %} {% block title %}My Page - ColorWalk{%
-endblock %} {% block body_class %}mypage{% endblock %} {% block
-main_class %}mypage-container{% endblock %} {% block content %}
+{% extends "base.html" %}
+{% block title %}My Page - ColorWalk{% endblock %}
+{% block body_class %}mypage{% endblock %}
+{% block main_class %}mypage-container{% endblock %}
+{% block content %}
+
 <!-- 👤 프로필 카드 -->
 <section class="profile-card">
   <div class="profile-left">
@@ -9,48 +12,86 @@ main_class %}mypage-container{% endblock %} {% block content %}
     </div>
     <div class="profile-info">
       <div class="profile-header">
+        <!-- ✅ 여기는 절대 수정하지 않음 -->
         <h2>{{ user_name }} <span>님의 컬러워크</span></h2>
-        <a href="{{ url_for('logout') }}" class="logout-btn"
-          >🚪 로그아웃</a
-        >
+        <a href="{{ url_for('logout') }}" class="logout-btn">🚪 로그아웃</a>
       </div>
       <p>색상으로 감정을 기록하는 중 🌸</p>
-
       <div class="profile-stats">
-        <span>📸 6개의 사진</span>
-        <span>💗 1,075개의 좋아요</span>
-        <span
-          >🎨 가장 많이 찍은 색상:
-          <b style="color: #339af0">💙 블루</b></span
-        >
+        <span>📸 {{ my_photos|length }}개의 사진</span>
+        <span>💗 {{ liked_photos|length }}개의 좋아요</span>
+        <span>🎨 가장 많이 찍은 색상: <b style="color:#339af0">💙 블루</b></span>
       </div>
     </div>
   </div>
 </section>
 
-<!-- 🖼️ 내가 업로드한 사진 -->
+<!-- 🖼️ 내가 업로드한 사진 / 좋아요한 사진 -->
 <section class="myphotos">
   <div class="tab-buttons">
-    <button class="active">내가 업로드한 사진</button>
-    <button>좋아요한 사진</button>
+    <button id="tab-my" class="active">내가 업로드한 사진</button>
+    <button id="tab-like">좋아요한 사진</button>
   </div>
-  <div class="photo-grid">
-    {% if my_photos %} {% for photo in my_photos %}
-    <div class="photo-card" data-color="{{ photo[2] }}">
-      <div
-        class="photo-image"
-        style="background-image: url('{{ photo[3] }}');"
-      ></div>
-      <div class="photo-info">
-        <p class="description">{{ photo[1] }}</p>
-        <p class="location">📍 {{ photo[4] }}</p>
-        <p class="likes">💗 {{ photo[5] }}개</p>
+
+  <!-- ✅ 내가 업로드한 사진 -->
+  <div class="photo-grid" id="my-photo-grid">
+    {% if my_photos %}
+      {% for photo in my_photos %}
+      <div class="photo-card" data-color="{{ photo[2] }}">
+        <div class="photo-image" style="background-image: url('{{ photo[3] }}');"></div>
+        <div class="photo-info">
+          <p class="description">{{ photo[1] }}</p>
+          <p class="location">📍 {{ photo[4]}}</p>
+          <p class="likes">💗 {{ photo[5] }}개</p>
+        </div>
       </div>
-    </div>
-    {% endfor %} {% else %}
-    <p class="empty">아직 업로드한 사진이 없어요 📷</p>
+      {% endfor %}
+    {% else %}
+      <p class="empty">아직 업로드한 사진이 없어요 📷</p>
+    {% endif %}
+  </div>
+
+  <!-- ✅ 좋아요한 사진 -->
+  <div class="photo-grid" id="liked-photo-grid" style="display: none;">
+    {% if liked_photos %}
+      {% for photo in liked_photos %}
+      <div class="photo-card" data-color="{{ photo[2] }}">
+        <div class="photo-image" style="background-image: url('{{ photo[3] }}');"></div>
+        <div class="photo-info">
+          <p class="description">{{ photo[1] }}</p>
+          <p class="location">📍 {{ photo[4]}}</p>
+          <p class="likes">💗 {{ photo[5] }}개</p>
+        </div>
+      </div>
+      {% endfor %}
+    {% else %}
+      <p class="empty">좋아요한 사진이 아직 없어요 💕</p>
     {% endif %}
   </div>
 </section>
+
+<!-- ✅ JS: 탭 전환만 제어 (상단 구조/스타일 불변) -->
+<script>
+document.addEventListener("DOMContentLoaded", function() {
+  const tabMy = document.getElementById("tab-my");
+  const tabLike = document.getElementById("tab-like");
+  const myGrid = document.getElementById("my-photo-grid");
+  const likeGrid = document.getElementById("liked-photo-grid");
+
+  tabMy.addEventListener("click", () => {
+    tabMy.classList.add("active");
+    tabLike.classList.remove("active");
+    myGrid.style.display = "grid";
+    likeGrid.style.display = "none";
+  });
+
+  tabLike.addEventListener("click", () => {
+    tabLike.classList.add("active");
+    tabMy.classList.remove("active");
+    likeGrid.style.display = "grid";
+    myGrid.style.display = "none";
+  });
+});
+</script>
 
 {% endblock %}
