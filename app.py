@@ -6,6 +6,90 @@ import hashlib
 from PIL import Image
 from PIL.ExifTags import TAGS, GPSTAGS
 import time
+from math import radians, sin, cos, sqrt, atan2
+from datetime import datetime
+
+# ✅ 거리 계산 (하버사인 공식)
+def calc_distance(lat1, lon1, lat2, lon2):
+    R = 6371  # km 단위
+    dlat = radians(lat2 - lat1)
+    dlon = radians(lon2 - lon1)
+    a = sin(dlat/2)**2 + cos(radians(lat1)) * cos(radians(lat2)) * sin(dlon/2)**2
+    c = 2 * atan2(sqrt(a), sqrt(1-a))
+    return R * c
+
+# ✅ 산책 세션 그룹핑 (시간 기준)
+def group_by_time(photo_data, gap_min=30):
+    sessions = []
+    current = [photo_data[0]]
+
+    for i in range(1, len(photo_data)):
+        t1 = datetime.strptime(photo_data[i-1][0], "%Y:%m:%d %H:%M:%S")
+        t2 = datetime.strptime(photo_data[i][0], "%Y:%m:%d %H:%M:%S")
+        diff = (t2 - t1).total_seconds() / 60
+
+        if diff <= gap_min:
+            current.append(photo_data[i])
+        else:
+            sessions.append(current)
+            current = [photo_data[i]]
+
+    sessions.append(current)
+    return sessions
+
+# ✅ 사용자별 세션 점수 계산
+def calc_user_score(email, photo_data):
+    sessions = group_by_time(photo_data)
+    total_score = 0
+    total_dist = 0
+    total_photos = 0
+
+    for session in sessions:
+        session_dist = 0
+        for i in range(1, len(session)):
+            _, lat1, lon1 = session[i-1]
+            _, lat2, lon2 = session[i]
+            session_dist += calc_distance(lat1, lon1, lat2, lon2)
+        photo_count = len(session)
+        score = photo_count * 10 + session_dist * 5
+
+        total_score += score
+        total_dist += session_dist
+        total_photos += photo_count
+        print(f"[DEBUG] {email} 세션 거리: {round(session_dist, 3)} km, 사진 수: {photo_count}")
+
+    return total_photos, total_dist, total_score
+
+# ✅ 전체 사용자 랭킹 계산
+def calculate_ranking():
+    conn = get_connection()
+    cur = conn.cursor()
+
+    cur.execute("""
+        SELECT U.EMAIL, TO_CHAR(P.SHOT_TIME), P.GPS_LATITUDE, P.GPS_LONGITUDE
+        FROM PHOTOS P
+        JOIN USERS U ON P.USER_ID = U.USER_ID
+        WHERE P.GPS_LATITUDE IS NOT NULL AND P.GPS_LONGITUDE IS NOT NULL
+        ORDER BY U.EMAIL, P.SHOT_TIME
+    """)
+    rows = cur.fetchall()
+    conn.close()
+
+    # 사용자별 데이터 분류
+    users = {}
+    for email, shot_time, lat, lon in rows:
+        users.setdefault(email, []).append((shot_time, lat, lon))
+
+    # 각 유저 점수 계산
+    results = []
+    for email, photo_data in users.items():
+        total_photos, total_dist, total_score = calc_user_score(email, photo_data)
+        results.append((email, total_photos, round(total_dist, 2), round(total_score, 1)))
+
+    # 점수순 정렬
+    results.sort(key=lambda x: x[3], reverse=True)
+    return results
+
 
 # =========================================
 # Flask 기본 설정
@@ -512,6 +596,12 @@ def trend():
 @app.route('/test')
 def test():
     return render_template('test.html')
+
+@app.route('/ranking')
+def ranking():
+    ranks = calculate_ranking()
+    print("📊 랭킹 계산 결과:", ranks)
+    return render_template('ranking.html', ranks=ranks)
 
 @app.route("/mypage")
 def mypage():
