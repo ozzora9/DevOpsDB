@@ -210,6 +210,13 @@ def upload():
     except Exception as e:
         print("⚠️ EXIF 파싱 실패:", e)
 
+    # ✅ GPS 정보가 없는 경우, 대한민국 내 랜덤 좌표 지정
+    if gps_lat is None or gps_lon is None:
+        import random
+        gps_lat = round(random.uniform(34.2, 37.9), 6)
+        gps_lon = round(random.uniform(126.5, 129.5), 6)
+        print(f"📍 랜덤 좌표 지정됨 → 위도 {gps_lat}, 경도 {gps_lon}")
+
     # ✅ DB 저장
     conn = get_connection()
     cur = conn.cursor()
@@ -272,7 +279,7 @@ def gallery(color_key=None):
     all_photo = cur.fetchone()[0]
 
     # ✅ 현재 로그인한 유저의 업로드 사진 개수
-    user_id = session['user_id']
+    user_id = session.get("user_id")
     cur.execute("SELECT COUNT(*) FROM photos WHERE user_id = :1", [user_id])
     upload_photo = cur.fetchone()[0]
 
@@ -446,11 +453,61 @@ def add_comment(photo_id):
 
 
 # =========================================
-# 기타 페이지
+# 트렌드 페이지 (전체 + 내 사진 보기)
 # =========================================
-@app.route('/trend')
+@app.route("/trend")
 def trend():
-    return render_template('trend.html')
+    conn = get_connection()
+    cur = conn.cursor()
+
+    # ✅ 전체 사진 + 업로더 이름 함께 조회
+    cur.execute("""
+        SELECT p.photo_id, p.image_path, p.color_id,
+               NVL(p.gps_latitude, 37.5665),
+               NVL(p.gps_longitude, 126.9780),
+               u.name
+        FROM photos p
+        JOIN users u ON p.user_id = u.user_id
+    """)
+    photos = [
+        {
+            "photo_id": p[0],
+            "image_path": url_for("static", filename=p[1].replace("static/", "")),
+            "color_id": p[2],
+            "lat": float(p[3]),
+            "lon": float(p[4]),
+            "username": p[5],  # ✅ 사용자 이름 추가
+        }
+        for p in cur.fetchall()
+    ]
+
+    # ✅ 로그인한 사용자 사진만 따로
+    my_photos = []
+    user_id = session.get("user_id")
+    if user_id:
+        cur.execute("""
+            SELECT p.photo_id, p.image_path, p.color_id,
+                   NVL(p.gps_latitude, 37.5665),
+                   NVL(p.gps_longitude, 126.9780),
+                   u.name
+            FROM photos p
+            JOIN users u ON p.user_id = u.user_id
+            WHERE p.user_id = :user_id
+        """, {"user_id": user_id})
+        my_photos = [
+            {
+                "photo_id": p[0],
+                "image_path": url_for("static", filename=p[1].replace("static/", "")),
+                "color_id": p[2],
+                "lat": float(p[3]),
+                "lon": float(p[4]),
+                "username": p[5],
+            }
+            for p in cur.fetchall()
+        ]
+
+    conn.close()
+    return render_template("trend.html", photos=photos, my_photos=my_photos)
 
 @app.route('/test')
 def test():
