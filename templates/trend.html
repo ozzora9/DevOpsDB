@@ -139,47 +139,48 @@
     });
   }
 
-  // 🗺️ 지도 생성
-  const map = L.map("map", { zoomControl: true });
-  L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
-    maxZoom: 18,
-    attribution: "&copy; OpenStreetMap contributors",
-  }).addTo(map);
+// 지도 생성 (대한민국 중심, 초기 줌 7)
+const map = L.map("map", { zoomControl: true }).setView([36.3, 127.8], 7);
+L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
+  maxZoom: 18,
+  attribution: "&copy; OpenStreetMap contributors",
+}).addTo(map);
 
-  let markers = [];
+let markers = []; // 마커 저장용
 
-  // 공통 마커 표시 함수
-  function showMarkers(data) {
-    markers.forEach(m => map.removeLayer(m));
-    markers = [];
-    const bounds = L.latLngBounds();
+// 공통 마커 표시 함수
+function showMarkers(data) {
+  // 기존 마커 제거
+  markers.forEach(m => map.removeLayer(m));
+  markers = [];
 
-    data.forEach(p => {
-      const lat = p.lat ?? 37.5665;
-      const lon = p.lon ?? 126.9780;
-      const colorKey = colorKeyMap[p.color_id] || "gray";
+  // 마커 추가
+  data.forEach(p => {
+    const lat = p.lat ?? 37.5665;
+    const lon = p.lon ?? 126.9780;
+    const colorKey = colorKeyMap[p.color_id] || "gray";
 
-      const marker = L.marker([lat, lon], {
-        icon: getMarkerIcon(colorKey)
-      }).addTo(map);
+    const marker = L.marker([lat, lon], {
+      icon: getMarkerIcon(colorKey)
+    }).addTo(map);
 
-      bounds.extend([lat, lon]);
-      marker.bindPopup(`
-  <div style="text-align:center">
-    <img src="${p.image_path}" width="120" style="border-radius:8px; margin-bottom:6px"><br>
-    <b>${colorKey}</b> 계열<br>
-    <small>📸 ${p.username || '익명 사용자'}</small>
-  </div>
-`);
+    marker.bindPopup(`
+      <div style="text-align:center">
+        <img src="${p.image_path}" width="120" style="border-radius:8px; margin-bottom:6px"><br>
+        <b>${colorKey}</b> 계열<br>
+        <small>📸 ${p.username || '익명 사용자'}</small>
+      </div>
+    `);
 
-      markers.push(marker);
-    });
+    markers.push(marker);
+  });
 
-    if (data.length > 0)
-      map.fitBounds(bounds, { padding: [30, 30], maxZoom: 13 });
-    else
-      map.setView([37.5665, 126.9780], 12);
-  }
+  // ✅ 지도 크기 강제 고정 (전국 확대 레벨)
+  map.setView([36.3, 127.8], 8);
+}
+
+// 🧭 기본 전체 마커 표시
+showMarkers(photos);
 
   // 🧭 기본: 전체 사진 표시
   showMarkers(photos);
