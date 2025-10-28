@@ -1,0 +1,31 @@
+{% extends "base.html" %} {% block title %}🏆 ColorWalk 산책 랭킹 {%
+endblock %} {% block body_class %}rank-page{% endblock %} {% block
+content %}
+
+<h1 class="rank-page">🏆 ColorWalk 산책 랭킹</h1>
+
+<table class="rank-page">
+  <tr>
+    <th>순위</th>
+    <th>사용자 이메일</th>
+    <th>사진 수</th>
+    <th>이동 거리 (km)</th>
+    <th>점수</th>
+  </tr>
+
+  {% if ranks and ranks|length > 0 %} {% for email, photo_cnt, dist,
+  score in ranks %}
+  <tr>
+    <td>{{ loop.index }}</td>
+    <td>{{ email }}</td>
+    <td>{{ photo_cnt }}</td>
+    <td>{{ "%.2f"|format(dist) }}</td>
+    <td>{{ "%.1f"|format(score) }}</td>
+  </tr>
+  {% endfor %} {% else %}
+  <tr>
+    <td colspan="5" class="empty">아직 랭킹 데이터가 없습니다 🐾</td>
+  </tr>
+  {% endif %}
+</table>
+{% endblock %}
