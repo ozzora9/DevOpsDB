@@ -4,8 +4,8 @@ import oracledb
 def get_connection():
     try:
         connection = oracledb.connect(
-            user="system",             # 오라클 사용자명
-            password="1234",    # 오라클 SYSTEM 계정 비밀번호
+            user="c##colorwalk",             # 오라클 사용자명
+            password="walk123",    # 오라클 SYSTEM 계정 비밀번호
             dsn="localhost:1521/XE"    # XE 버전 기본 주소
         )
         return connection

@@ -32,26 +32,20 @@ ColorWalk{%endblock %} {% block body_class %}upload-page{% endblock %}
   <!-- 📸 사진 업로드 -->
   <section class="upload-box">
     <h3>📷 사진 업로드</h3>
-    <div class="upload-area">
-      <div class="camera-box">
-        <video class="camera-view" id="camera-view" autoplay>
-          <!-- <input
-            type="file"
-            id="file-input"
-            name="image"
-            accept="image/*"
-            hidden
-          /> -->
-          <!-- <p>
-            클릭하여 사진을 선택하세요<br /><small
-              >또는 드래그 앤 드롭</small
-            >
-          </p> -->
-        </video>
-        <div class="shutter-btn">
-          <i class="fas fa-upload"></i>
-        </div>
-      </div>
+    <div class="upload-area" id="upload-area">
+      <i class="fas fa-upload"></i>
+      <p>
+        클릭하여 사진을 선택하세요<br /><small
+          >또는 드래그 앤 드롭</small
+        >
+      </p>
+      <input
+        type="file"
+        id="file-input"
+        name="image"
+        accept="image/*"
+        hidden
+      />
     </div>
     <img
       id="preview"
@@ -89,5 +83,5 @@ ColorWalk{%endblock %} {% block body_class %}upload-page{% endblock %}
   </section>
 </form>
 <script src="https://unpkg.com/fast-average-color@9.5.0/dist/index.browser.min.js"></script>
-<script src="{{ url_for('static', filename='js/upload.js') }}"></script>
+<script src="{{ url_for('static', filename='js/upload-copy.js') }}"></script>
 {% endblock %}

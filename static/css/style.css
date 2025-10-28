@@ -672,6 +672,25 @@ body.upload-page {
   color: #555;
 }
 
+.camera-box {
+  display: flex;
+  justify-content: space-around;
+}
+
+.camera-box #camera-view {
+  width: 70%;
+  /* 카메라 좌우반전 */
+  transform: rotateY(180deg);
+  -webkit-transform: rotateY(180deg); /* Safari and Chrome */
+  -moz-transform: rotateY(180deg); /* Firefox */
+}
+
+.shutter-btn {
+  display: flex;
+  align-items: center;
+  /* margin-left: 24px; */
+}
+
 /* 입력 그룹 */
 .input-group {
   margin-top: 20px;
@@ -729,16 +748,15 @@ body.upload-page {
   box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
 }
 
-/* 업로드 박스 내 이미지가 너무 커지는 걸 방지 */
-.upload-area {
+/* .upload-area {
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
   min-height: 250px;
-  max-height: 350px; /* ✅ 업로드 영역 높이 제한 */
-  overflow: hidden; /* ✅ 넘치는 이미지 잘라내기 */
-}
+  max-height: 350px;
+  overflow: hidden;
+} */
 
 /* ====================================================== */
 /* 🖼️ GALLERY PAGE (gallery.html) */
