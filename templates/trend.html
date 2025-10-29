@@ -9,7 +9,7 @@
   <div class="map-header">
     <h2>📍 색상별 업로드 위치 지도</h2>
     <p class="sub">각 색상에 해당하는 마커로 사진의 촬영 위치가 표시됩니다.</p>
-    
+
     <!-- 🔘 전체 / 내 사진 보기 버튼 -->
     <div class="map-buttons">
       <button id="showAll" class="active">전체 사진 보기</button>
@@ -22,192 +22,22 @@
   </div>
 </section>
 
-<!-- Leaflet 라이브러리 -->
-<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.3/dist/leaflet.css"/>
+<!-- Leaflet 라이브러리 (필수 순서 지켜야 함) -->
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.3/dist/leaflet.css" />
+
+<!-- Trend 전용 CSS -->
+<link rel="stylesheet" href="{{ url_for('static', filename='css/trend.css') }}" />
+
+<!-- Leaflet JS -->
 <script src="https://unpkg.com/leaflet@1.9.3/dist/leaflet.js"></script>
 
-<style>
-  .trend-map {
-    margin-top: 10px;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    width: 100%;
-  }
-
-  .map-header {
-    text-align: center;
-    margin-bottom: 40px;
-  }
-
-  .map-header h2 {
-    font-size: 1.8rem;
-    margin-bottom: 10px;
-    font-weight: 700;
-  }
-
-  .map-header .sub {
-    color: #666;
-    font-size: 1rem;
-    line-height: 1.5;
-  }
-
-  .map-buttons {
-    margin-top: 20px;
-    display: flex;
-    justify-content: center;
-    gap: 12px;
-  }
-
-  .map-buttons button {
-    background: #f0f0f0;
-    border: none;
-    border-radius: 8px;
-    padding: 8px 16px;
-    cursor: pointer;
-    font-weight: 600;
-    transition: 0.3s;
-  }
-
-  .map-buttons button:hover {
-    background: #ddd;
-  }
-
-  .map-buttons button.active {
-    background: #339af0;
-    color: #fff;
-  }
-
-  /* 🗺️ 지도 영역 */
-  .map-wrap {
-    display: flex;
-    justify-content: center;
-    width: 100%;
-  }
-
-  #map {
-    width: 70vw;
-    max-width: 1000px;
-    min-width: 320px;
-    height: 75vh;
-    border-radius: 16px;
-    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.15);
-    margin: 0 auto;
-    transition: width 0.3s ease;
-  }
-
-  @media (max-width: 1024px) {
-    #map { width: 80vw; }
-  }
-
-  @media (max-width: 768px) {
-    #map { width: 90vw; height: 65vh; }
-  }
-</style>
-
+<!-- Flask 데이터를 trend.js로 전달 -->
 <script>
-  const photos = {{ photos | tojson }};
-  const myPhotos = {{ my_photos | tojson }};
-
-  const colorKeyMap = {
-    1: "red", 2: "orange", 3: "yellow", 4: "green", 5: "blue",
-    6: "purple", 7: "brown", 8: "black", 9: "white",
-  };
-
-  const colorHex = {
-    red: "#FF4B5C", orange: "#FF8C42", yellow: "#FFD93D",
-    green: "#4CAF50", blue: "#4A90E2", purple: "#A66DD4",
-    brown: "#8B5E3C", black: "#222222", white: "#FFFFFF"
-  };
-
-  // 📍 색상별 마커 생성
-  function getMarkerIcon(colorKey) {
-    const fill = colorHex[colorKey] || "#888888";
-    const stroke = colorKey === "white" ? "#888" : "#FFF";
-    const svg = `
-      <svg xmlns="http://www.w3.org/2000/svg" width="28" height="40" viewBox="0 0 24 24">
-        <path d="M12 2C7.58 2 4 5.58 4 10c0 5.25 8 12 8 12s8-6.75 8-12c0-4.42-3.58-8-8-8z"
-              fill="${fill}" stroke="${stroke}" stroke-width="1.2"/>
-        <circle cx="12" cy="10" r="2.4" fill="#ffffff" opacity="0.9"/>
-      </svg>`;
-    const url = "data:image/svg+xml;charset=UTF-8," + encodeURIComponent(svg);
-    return L.icon({
-      iconUrl: url,
-      iconSize: [28, 40],
-      iconAnchor: [14, 40],
-      popupAnchor: [0, -36]
-    });
-  }
-
-// 지도 생성 (대한민국 중심, 초기 줌 7)
-const map = L.map("map", { zoomControl: true }).setView([36.3, 127.8], 7);
-L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
-  maxZoom: 18,
-  attribution: "&copy; OpenStreetMap contributors",
-}).addTo(map);
-
-let markers = []; // 마커 저장용
-
-// 공통 마커 표시 함수
-function showMarkers(data) {
-  // 기존 마커 제거
-  markers.forEach(m => map.removeLayer(m));
-  markers = [];
-
-  // 마커 추가
-  data.forEach(p => {
-    const lat = p.lat ?? 37.5665;
-    const lon = p.lon ?? 126.9780;
-    const colorKey = colorKeyMap[p.color_id] || "gray";
-
-    const marker = L.marker([lat, lon], {
-      icon: getMarkerIcon(colorKey)
-    }).addTo(map);
-
-    marker.bindPopup(`
-      <div style="text-align:center">
-        <img src="${p.image_path}" width="120" style="border-radius:8px; margin-bottom:6px"><br>
-        <b>${colorKey}</b> 계열<br>
-        <small>📸 ${p.username || '익명 사용자'}</small>
-      </div>
-    `);
-
-    markers.push(marker);
-  });
-
-  // ✅ 지도 크기 강제 고정 (전국 확대 레벨)
-  map.setView([36.3, 127.8], 8);
-}
-
-// 🧭 기본 전체 마커 표시
-showMarkers(photos);
-
-  // 🧭 기본: 전체 사진 표시
-  showMarkers(photos);
-
-  // 버튼 제어
-  const btnAll = document.getElementById("showAll");
-  const btnMine = document.getElementById("showMine");
-
-  btnAll.addEventListener("click", () => {
-    btnAll.classList.add("active");
-    btnMine.classList.remove("active");
-    showMarkers(photos);
-  });
-
-  btnMine.addEventListener("click", () => {
-    btnMine.classList.add("active");
-    btnAll.classList.remove("active");
-
-    if (myPhotos.length > 0) {
-      showMarkers(myPhotos);
-    } else {
-      markers.forEach(m => map.removeLayer(m));
-      alert("⚠️ 내 사진이 없습니다. (로그인하지 않았거나 업로드 기록이 없습니다.)");
-    }
-  });
-
-  setTimeout(() => map.invalidateSize(), 100);
+  window.photosData = {{ photos | tojson }};
+  window.myPhotosData = {{ my_photos | tojson }};
 </script>
+
+<!-- Trend 전용 JS -->
+<script src="{{ url_for('static', filename='js/trend.js') }}"></script>
 
 {% endblock %}

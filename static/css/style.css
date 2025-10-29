@@ -672,6 +672,25 @@ body.upload-page {
   color: #555;
 }
 
+.camera-box {
+  display: flex;
+  justify-content: space-around;
+}
+
+.camera-box #camera-view {
+  width: 70%;
+  /* 카메라 좌우반전 */
+  transform: rotateY(180deg);
+  -webkit-transform: rotateY(180deg); /* Safari and Chrome */
+  -moz-transform: rotateY(180deg); /* Firefox */
+}
+
+.shutter-btn {
+  display: flex;
+  align-items: center;
+  /* margin-left: 24px; */
+}
+
 /* 입력 그룹 */
 .input-group {
   margin-top: 20px;
@@ -729,16 +748,15 @@ body.upload-page {
   box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
 }
 
-/* 업로드 박스 내 이미지가 너무 커지는 걸 방지 */
-.upload-area {
+/* .upload-area {
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
   min-height: 250px;
-  max-height: 350px; /* ✅ 업로드 영역 높이 제한 */
-  overflow: hidden; /* ✅ 넘치는 이미지 잘라내기 */
-}
+  max-height: 350px;
+  overflow: hidden;
+} */
 
 /* ====================================================== */
 /* 🖼️ GALLERY PAGE (gallery.html) */
@@ -1281,10 +1299,14 @@ body.mypage {
   border-radius: 20px;
   box-shadow: 0 6px 20px rgba(0, 0, 0, 0.05);
   padding: 30px;
-  margin-bottom: 40px;
+
+  /* ✅ 핵심 수정 부분 */
+  width: 680px;                /* 항상 일정한 가로폭 (예: 사진 있을 때 기준 폭) */
+  margin: 0 auto 40px auto;    /* 가운데 정렬 */
   display: flex;
   align-items: center;
-  justify-content: center;
+  justify-content: space-between; /* 내부 좌우 균형 유지 */
+  transition: all 0.3s ease;   /* 부드럽게 유지 */
 }
 
 .profile-left {
@@ -1344,64 +1366,18 @@ body.mypage {
   transform: translateY(-2px);
   box-shadow: 0 3px 10px rgba(255, 100, 200, 0.3);
 }
-
-/* 차트 영역 */
-.mypage-stats {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 30px;
-  margin-bottom: 40px;
+.myphotos {
+  width: 680px;              /* ✅ 프로필 카드와 동일한 폭 */
+  margin: 0 auto;            /* ✅ 항상 가운데 정렬 */
+  text-align: center;        /* ✅ 내부 텍스트 중앙 정렬 */
 }
-
-.chart-box {
-  background: #fff;
-  flex: 1;
-  min-width: 320px;
-  border-radius: 20px;
-  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
-  padding: 20px;
+.myphotos .empty {
+  text-align: center;
+  color: #777;
+  font-size: 1rem;
+  width: 100%;
+  white-space: nowrap; /* ✅ 한 줄 유지 */
 }
-
-/* 감정 히스토리 */
-.color-history {
-  background: #fff;
-  border-radius: 20px;
-  padding: 30px;
-  margin-bottom: 40px;
-  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
-}
-
-.history-list {
-  list-style: none;
-  margin-top: 20px;
-}
-
-.history-list li {
-  display: flex;
-  align-items: center;
-  gap: 14px;
-  padding: 10px 0;
-  border-bottom: 1px solid #eee;
-}
-
-.history-list .color-tag {
-  font-size: 1.6rem;
-}
-
-.history-content strong {
-  font-size: 1.1rem;
-}
-
-.history-content small {
-  color: #888;
-  margin-left: 10px;
-}
-
-.history-content p {
-  margin-top: 4px;
-  color: #666;
-}
-
 /* 사진 카드 */
 .myphotos .tab-buttons {
   display: flex;
@@ -1461,12 +1437,97 @@ body.mypage {
   color: #555;
 }
 
+/* ====================================================== */
+/* 🌈 Trend Page Styles */
+/* ====================================================== */
+
+.trend-map {
+  margin-top: 10px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 100%;
+}
+
+.map-header {
+  text-align: center;
+  margin-bottom: 40px;
+}
+
+.map-header h2 {
+  font-size: 1.8rem;
+  margin-bottom: 10px;
+  font-weight: 700;
+}
+
+.map-header .sub {
+  color: #666;
+  font-size: 1rem;
+  line-height: 1.5;
+}
+
+/* 버튼 영역 */
+.map-buttons {
+  margin-top: 20px;
+  display: flex;
+  justify-content: center;
+  gap: 12px;
+}
+
+.map-buttons button {
+  background: #f0f0f0;
+  border: none;
+  border-radius: 8px;
+  padding: 8px 16px;
+  cursor: pointer;
+  font-weight: 600;
+  transition: 0.3s;
+}
+
+.map-buttons button:hover {
+  background: #ddd;
+}
+
+.map-buttons button.active {
+  background: #339af0;
+  color: #fff;
+}
+
+/* 지도 영역 */
+.map-wrap {
+  display: flex;
+  justify-content: center;
+  width: 100%;
+}
+
+#map {
+  width: 70vw;
+  max-width: 1000px;
+  min-width: 320px;
+  height: 75vh;
+  border-radius: 16px;
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.15);
+  margin: 0 auto;
+  transition: width 0.3s ease;
+}
+
+@media (max-width: 1024px) {
+  #map { width: 80vw; }
+}
+
+@media (max-width: 768px) {
+  #map { width: 90vw; height: 65vh; }
+}
+
+
 /* ranking */
 
 h1.rank-page {
   text-align: center;
+  margin-top: 40px;   /* ✅ 상단 여백 추가 */
   margin-bottom: 30px;
 }
+
 table.rank-page {
   width: 80%;
   margin: 0 auto;
@@ -1476,19 +1537,23 @@ table.rank-page {
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
   background: white;
 }
+
 th,
 td {
   padding: 12px;
   text-align: center;
   border-bottom: 1px solid #e5e7eb;
 }
+
 th {
   background: #f3f4f6;
   font-weight: 600;
 }
+
 tr:hover {
   background-color: #f9fafb;
 }
+
 .empty {
   text-align: center;
   padding: 30px;

@@ -41,6 +41,10 @@
             class="{% if '/trend' in request.path %}active{% endif %}"
             ><i class="fas fa-chart-line"></i> Trend</a
           >
+          <a href="/ranking" class="{% if '/ranking' in request.path %}active{% endif %}">
+          <i class="fas fa-trophy"></i> Ranking
+          </a>
+          
           <a
             href="/mypage"
             class="{% if '/mypage' in request.path %}active{% endif %}"

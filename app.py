@@ -8,25 +8,46 @@ from PIL.ExifTags import TAGS, GPSTAGS
 import time
 from math import radians, sin, cos, sqrt, atan2
 from datetime import datetime
+from datetime import date
+import random
 
 # ✅ 거리 계산 (하버사인 공식)
 def calc_distance(lat1, lon1, lat2, lon2):
-    R = 6371  # km 단위
+    R = 6371.0  # km 단위
     dlat = radians(lat2 - lat1)
     dlon = radians(lon2 - lon1)
-    a = sin(dlat/2)**2 + cos(radians(lat1)) * cos(radians(lat2)) * sin(dlon/2)**2
-    c = 2 * atan2(sqrt(a), sqrt(1-a))
+    a = sin(dlat / 2) ** 2 + cos(radians(lat1)) * cos(radians(lat2)) * sin(dlon / 2) ** 2
+    c = 2 * atan2(sqrt(a), sqrt(1 - a))
     return R * c
 
+
+# ✅ 안전한 시간 파싱 (EXIF or DB 포맷 혼용 대응)
+def safe_parse_time(t):
+    """다양한 datetime 포맷을 처리 (ex: '2025-10-29 19:43:33', '2025-10-29 19:43:33.441000')"""
+    if not t:
+        return None
+    for fmt in ("%Y-%m-%d %H:%M:%S.%f", "%Y-%m-%d %H:%M:%S", "%Y:%m:%d %H:%M:%S"):
+        try:
+            return datetime.strptime(t, fmt)
+        except ValueError:
+            continue
+    print(f"[WARN] 시간 파싱 실패 → '{t}'")
+    return None
+
+
 # ✅ 산책 세션 그룹핑 (시간 기준)
-def group_by_time(photo_data, gap_min=30):
+def group_by_time(photo_data, gap_min=300):  # 🔹 5시간(300분) 기준으로 동일 세션 묶음
     sessions = []
     current = [photo_data[0]]
 
     for i in range(1, len(photo_data)):
-        t1 = datetime.strptime(photo_data[i-1][0], "%Y:%m:%d %H:%M:%S")
-        t2 = datetime.strptime(photo_data[i][0], "%Y:%m:%d %H:%M:%S")
+        t1 = safe_parse_time(photo_data[i - 1][0])
+        t2 = safe_parse_time(photo_data[i][0])
+        if not t1 or not t2:
+            continue
+
         diff = (t2 - t1).total_seconds() / 60
+        print(f"[DEBUG] 시간 비교: {photo_data[i - 1][0]} → {photo_data[i][0]} | 차이 {diff:.2f}분")
 
         if diff <= gap_min:
             current.append(photo_data[i])
@@ -35,7 +56,9 @@ def group_by_time(photo_data, gap_min=30):
             current = [photo_data[i]]
 
     sessions.append(current)
+    print(f"[DEBUG] 세션 {len(sessions)}개로 그룹핑 완료")
     return sessions
+
 
 # ✅ 사용자별 세션 점수 계산
 def calc_user_score(email, photo_data):
@@ -46,19 +69,33 @@ def calc_user_score(email, photo_data):
 
     for session in sessions:
         session_dist = 0
+        if len(session) < 2:
+            print(f"[INFO] {email} 세션에 사진 1장만 있어 거리 계산 생략")
+            total_photos += len(session)
+            continue
+
         for i in range(1, len(session)):
-            _, lat1, lon1 = session[i-1]
+            _, lat1, lon1 = session[i - 1]
             _, lat2, lon2 = session[i]
-            session_dist += calc_distance(lat1, lon1, lat2, lon2)
+
+            # ✅ 문자열 → float 변환
+            lat1, lon1, lat2, lon2 = float(lat1), float(lon1), float(lat2), float(lon2)
+            dist = calc_distance(lat1, lon1, lat2, lon2)
+            session_dist += dist
+            print(f"[DEBUG] 거리 계산: ({lat1},{lon1}) → ({lat2},{lon2}) = {dist:.3f} km")
+
         photo_count = len(session)
         score = photo_count * 10 + session_dist * 5
 
         total_score += score
         total_dist += session_dist
         total_photos += photo_count
-        print(f"[DEBUG] {email} 세션 거리: {round(session_dist, 3)} km, 사진 수: {photo_count}")
 
+        print(f"[DEBUG] {email} 세션 요약 → 거리: {round(session_dist, 3)} km, 사진 수: {photo_count}")
+
+    print(f"[RESULT] {email} 총 거리: {round(total_dist, 3)} km, 총 사진 수: {total_photos}, 총 점수: {round(total_score, 1)}")
     return total_photos, total_dist, total_score
+
 
 # ✅ 전체 사용자 랭킹 계산
 def calculate_ranking():
@@ -75,19 +112,29 @@ def calculate_ranking():
     rows = cur.fetchall()
     conn.close()
 
-    # 사용자별 데이터 분류
+    if not rows:
+        print("[WARN] 📸 photos 테이블에 데이터가 없습니다.")
+        return []
+
+    # ✅ 사용자별 데이터 분류
     users = {}
     for email, shot_time, lat, lon in rows:
         users.setdefault(email, []).append((shot_time, lat, lon))
 
-    # 각 유저 점수 계산
+    # ✅ 각 사용자별 점수 계산
     results = []
     for email, photo_data in users.items():
+        print(f"\n[START] {email} 사용자 점수 계산 시작 ({len(photo_data)}장)")
         total_photos, total_dist, total_score = calc_user_score(email, photo_data)
         results.append((email, total_photos, round(total_dist, 2), round(total_score, 1)))
 
-    # 점수순 정렬
+    # ✅ 점수순 정렬
     results.sort(key=lambda x: x[3], reverse=True)
+
+    print("\n📊 최종 랭킹 결과:")
+    for rank, (email, cnt, dist, score) in enumerate(results, start=1):
+        print(f" {rank}. {email} | 사진 {cnt}장 | 거리 {dist:.2f} km | 점수 {score:.1f}")
+
     return results
 
 
@@ -195,7 +242,12 @@ def main():
 
 @app.route('/api/color')
 def api_color():
-    import random
+    import json
+    today = str(date.today())
+    force = request.args.get("force") == "1"
+    user_id = session.get("user_id")
+
+    # ✅ 색상 목록
     colors = [
         {"id": 1, "key": "red", "name": "레드", "emoji": "❤️", "hex": "#FF4B5C"},
         {"id": 2, "key": "orange", "name": "오렌지", "emoji": "🧡", "hex": "#FF8C42"},
@@ -207,11 +259,45 @@ def api_color():
         {"id": 8, "key": "black", "name": "블랙", "emoji": "🖤", "hex": "#222"},
         {"id": 9, "key": "white", "name": "화이트", "emoji": "🤍", "hex": "#FFFFFF"},
     ]
-    color = random.choice(colors)
-    session['today_color'] = color
-    return jsonify(color)
 
+    # ✅ 기존 세션 방식 그대로 유지
+    if 'global_color_data' not in session:
+        session['global_color_data'] = {}
 
+    color_cache = session['global_color_data']
+
+    # ✅ 오늘의 색상 유지 (세션 기준)
+    if not force and today in color_cache:
+        return jsonify(color_cache[today])
+
+    # ✅ 색상 새로 뽑기
+    if force and today in color_cache:
+        colors = [c for c in colors if c["key"] != color_cache[today]["key"]]
+
+    new_color = random.choice(colors)
+    color_cache[today] = new_color
+    session['global_color_data'] = color_cache
+
+    # ✅ 로그인한 경우 DB에도 오늘 색상/날짜 저장
+    if user_id:
+        try:
+            conn = get_connection()
+            cur = conn.cursor()
+            cur.execute("""
+                UPDATE users
+                SET today_color = :c, today_date = :d
+                WHERE user_id = :uid
+            """, {
+                "c": json.dumps(new_color, ensure_ascii=False),
+                "d": today,
+                "uid": user_id
+            })
+            conn.commit()
+            conn.close()
+        except Exception as e:
+            print("⚠️ DB 저장 오류:", e)
+
+    return jsonify(new_color)
 
 # =========================================
 # EXIF GPS → 소수점 변환 유틸
@@ -268,38 +354,52 @@ def upload():
     file.save(save_path)
     db_path = f"uploads/{filename}"
 
+    # ✅ 기본값
     gps_lat, gps_lon, shot_time = None, None, None
-    try:
-        img = Image.open(save_path)
-        exif_data = img._getexif()
-        if exif_data:
-            gps_info = {}
-            for tag_id, value in exif_data.items():
-                tag = TAGS.get(tag_id, tag_id)
-                if tag == "DateTimeOriginal":
-                    shot_time = value
-                elif tag == "GPSInfo":
-                    for t in value:
-                        sub_tag = GPSTAGS.get(t, t)
-                        gps_info[sub_tag] = value[t]
 
-            if gps_info:
-                gps_lat = convert_to_decimal(gps_info.get("GPSLatitude"))
-                gps_lon = convert_to_decimal(gps_info.get("GPSLongitude"))
-                # ✅ Ref값으로 북위/남위, 동경/서경 보정
-                if gps_info.get("GPSLatitudeRef") == "S":
-                    gps_lat = -gps_lat
-                if gps_info.get("GPSLongitudeRef") == "W":
-                    gps_lon = -gps_lon
-    except Exception as e:
-        print("⚠️ EXIF 파싱 실패:", e)
+    # ✅ 1) 프론트에서 전달된 GPS 좌표 확인
+    gps_lat_form = request.form.get('gps_latitude')
+    gps_lon_form = request.form.get('gps_longitude')
+    if gps_lat_form and gps_lon_form:
+        gps_lat = float(gps_lat_form)
+        gps_lon = float(gps_lon_form)
+        print(f"📍 브라우저 위치 수신 → 위도 {gps_lat}, 경도 {gps_lon}")
 
-    # ✅ GPS 정보가 없는 경우, 대한민국 내 랜덤 좌표 지정
+    # ✅ 2) EXIF에서 GPS 시도 (만약 존재한다면)
+    if gps_lat is None or gps_lon is None:
+        try:
+            img = Image.open(save_path)
+            exif_data = img._getexif()
+            if exif_data:
+                gps_info = {}
+                for tag_id, value in exif_data.items():
+                    tag = TAGS.get(tag_id, tag_id)
+                    if tag == "DateTimeOriginal":
+                        shot_time = value
+                    elif tag == "GPSInfo":
+                        for t in value:
+                            sub_tag = GPSTAGS.get(t, t)
+                            gps_info[sub_tag] = value[t]
+                if gps_info:
+                    gps_lat = convert_to_decimal(gps_info.get("GPSLatitude"))
+                    gps_lon = convert_to_decimal(gps_info.get("GPSLongitude"))
+                    if gps_info.get("GPSLatitudeRef") == "S":
+                        gps_lat = -gps_lat
+                    if gps_info.get("GPSLongitudeRef") == "W":
+                        gps_lon = -gps_lon
+        except Exception as e:
+            print("⚠️ EXIF 파싱 실패:", e)
+
+    # ✅ 3) GPS 정보가 전혀 없을 경우 랜덤값
     if gps_lat is None or gps_lon is None:
         import random
         gps_lat = round(random.uniform(34.2, 37.9), 6)
         gps_lon = round(random.uniform(126.5, 129.5), 6)
         print(f"📍 랜덤 좌표 지정됨 → 위도 {gps_lat}, 경도 {gps_lon}")
+
+    # ✅ 4) 촬영시간이 없으면 현재 시각으로 설정
+    if not shot_time:
+        shot_time = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
 
     # ✅ DB 저장
     conn = get_connection()
@@ -463,6 +563,9 @@ def photo_detail(photo_id):
 # =========================================
 # 좋아요 토글
 # =========================================
+# =========================================
+# 좋아요 토글
+# =========================================
 @app.route("/like/<int:photo_id>", methods=["POST"])
 def toggle_like(photo_id):
     if "user_id" not in session:
@@ -483,6 +586,7 @@ def toggle_like(photo_id):
         # ✅ 좋아요 취소
         cur.execute("DELETE FROM likes WHERE like_id = :id", {"id": existing[0]})
         action = "unliked"
+        liked = False
     else:
         # ✅ 좋아요 추가
         cur.execute("""
@@ -490,23 +594,28 @@ def toggle_like(photo_id):
             VALUES (:photo_id, :user_id, SYSTIMESTAMP)
         """, {"photo_id": photo_id, "user_id": user_id})
         action = "liked"
+        liked = True
 
     # ✅ 변경 후 현재 좋아요 수 다시 계산
     cur.execute("SELECT COUNT(*) FROM likes WHERE photo_id = :photo_id", {"photo_id": photo_id})
-    like_count = cur.fetchone()[0]
+    likes_count = cur.fetchone()[0]
 
     # ✅ photos 테이블의 likes_count 컬럼 갱신
     cur.execute("""
         UPDATE photos
         SET likes_count = :count
         WHERE photo_id = :photo_id
-    """, {"count": like_count, "photo_id": photo_id})
+    """, {"count": likes_count, "photo_id": photo_id})
 
     conn.commit()
     conn.close()
 
-    return jsonify({"status": action, "like_count": like_count})
-
+    # ✅ liked 필드 추가해서 프론트로 전송
+    return jsonify({
+        "status": action,
+        "likes_count": likes_count,
+        "liked": liked
+    })
 
 # =========================================
 # 댓글 등록
