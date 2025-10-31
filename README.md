@@ -111,7 +111,7 @@
     - max=5,
     - increment=1,
     - timeout=60,
-- )
+ )
 
 4️⃣ Flask 서버 실행
  * python app.py
