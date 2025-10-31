@@ -38,6 +38,7 @@
 ---
 
 ## 구조
+```plaintext
 DevOpsDB-new/
 │
 ├─ static/                  # 정적 파일
@@ -61,6 +62,7 @@ DevOpsDB-new/
 ├─ requirements.txt         # 패키지 의존성 목록
 ├─ .gitignore               # 불필요 파일 제외 설정
 └─ README.md                # 프로젝트 설명
+
 ## 데이터베이스 구조
 
 | 테이블명 | 컬럼명 | 널 허용 | 자료형 | 설명 | 비고 |
