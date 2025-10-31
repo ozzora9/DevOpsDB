@@ -89,23 +89,7 @@
 
 ---
 
-### 🎨 COLOR_CATEGORIES 초기 데이터
-
-> ⚠️ `color_categories` 테이블은 서비스 실행 전 아래의 데이터를 **반드시 삽입해야 합니다.**  
-> 이 데이터는 색상 분석 및 사진 색상 매핑 기능에 사용됩니다.
-
-```sql
-INSERT INTO color_categories (color_id, color_key, color_name, hex_code) VALUES (1, 'red', '레드', '#FF6B6B');
-INSERT INTO color_categories (color_id, color_key, color_name, hex_code) VALUES (2, 'orange', '오렌지', '#FFA94D');
-INSERT INTO color_categories (color_id, color_key, color_name, hex_code) VALUES (3, 'yellow', '옐로우', '#FFD43B');
-INSERT INTO color_categories (color_id, color_key, color_name, hex_code) VALUES (4, 'green', '그린', '#51C56E');
-INSERT INTO color_categories (color_id, color_key, color_name, hex_code) VALUES (5, 'blue', '블루', '#339AF0');
-INSERT INTO color_categories (color_id, color_key, color_name, hex_code) VALUES (6, 'purple', '퍼플', '#945EFB');
-INSERT INTO color_categories (color_id, color_key, color_name, hex_code) VALUES (7, 'brown', '브라운', '#A17C6B');
-INSERT INTO color_categories (color_id, color_key, color_name, hex_code) VALUES (8, 'black', '블랙', '#212529');
-INSERT INTO color_categories (color_id, color_key, color_name, hex_code) VALUES (9, 'white', '화이트', '#F8F9FA');
-COMMIT;
-
+## 실행방법
 1️⃣ 가상환경 생성 및 활성화
 python -m venv venv
 ctrl + shift + p venv 인터프리티 선택
@@ -134,3 +118,22 @@ python app.py
 
 ✅ Oracle 테이블 준비 완료
  * Running on http://127.0.0.1:5000
+
+   
+### 🎨 COLOR_CATEGORIES 초기 데이터
+
+> ⚠️ `color_categories` 테이블은 서비스 실행 전 아래의 데이터를 **반드시 삽입해야 합니다.**  
+> 이 데이터는 색상 분석 및 사진 색상 매핑 기능에 사용됩니다.
+
+```sql
+INSERT INTO color_categories (color_id, color_key, color_name, hex_code) VALUES (1, 'red', '레드', '#FF6B6B');
+INSERT INTO color_categories (color_id, color_key, color_name, hex_code) VALUES (2, 'orange', '오렌지', '#FFA94D');
+INSERT INTO color_categories (color_id, color_key, color_name, hex_code) VALUES (3, 'yellow', '옐로우', '#FFD43B');
+INSERT INTO color_categories (color_id, color_key, color_name, hex_code) VALUES (4, 'green', '그린', '#51C56E');
+INSERT INTO color_categories (color_id, color_key, color_name, hex_code) VALUES (5, 'blue', '블루', '#339AF0');
+INSERT INTO color_categories (color_id, color_key, color_name, hex_code) VALUES (6, 'purple', '퍼플', '#945EFB');
+INSERT INTO color_categories (color_id, color_key, color_name, hex_code) VALUES (7, 'brown', '브라운', '#A17C6B');
+INSERT INTO color_categories (color_id, color_key, color_name, hex_code) VALUES (8, 'black', '블랙', '#212529');
+INSERT INTO color_categories (color_id, color_key, color_name, hex_code) VALUES (9, 'white', '화이트', '#F8F9FA');
+COMMIT;
+
