@@ -37,6 +37,7 @@
 
 ---
 
+## 구조
 DevOpsDB-new/
 │
 ├─ static/                  # 정적 파일
