@@ -91,17 +91,17 @@
 
 ## 실행방법
 1️⃣ 가상환경 생성 및 활성화
-python -m venv venv
-ctrl + shift + p venv 인터프리티 선택
-venv\Scripts\activate    # (Windows PowerShell)
+- python -m venv venv
+- ctrl + shift + p venv 인터프리티 선택
+- venv\Scripts\activate    # (Windows PowerShell)
 
 2️⃣ 패키지 설치
-pip install -r requirements.txt
-pip install oracledb
+- pip install -r requirements.txt
+- pip install oracledb
 
 3️⃣ Oracle DB 설정 확인
 
-db_config.py의 아래 부분에서 본인 DB 계정 정보 확인, 수정
+- db_config.py의 아래 부분에서 본인 DB 계정 정보 확인, 수정
 
 pool = oracledb.create_pool(
     user="system",
