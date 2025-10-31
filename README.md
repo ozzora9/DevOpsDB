@@ -103,18 +103,18 @@
 
 - db_config.py의 아래 부분에서 본인 DB 계정 정보 확인, 수정
 
-pool = oracledb.create_pool(
-    user="system",
-    password="비밀번호",
-    dsn="localhost:1521/XE",
-    min=2,
-    max=5,
-    increment=1,
-    timeout=60,
-)
+- pool = oracledb.create_pool(
+    - user="system",
+    - password="비밀번호",
+    - dsn="localhost:1521/XE",
+    - min=2,
+    - max=5,
+    - increment=1,
+    - timeout=60,
+- )
 
 4️⃣ Flask 서버 실행
-python app.py
+ * python app.py
 
 ✅ Oracle 테이블 준비 완료
  * Running on http://127.0.0.1:5000
