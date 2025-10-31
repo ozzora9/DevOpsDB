@@ -106,23 +106,31 @@ INSERT INTO color_categories (color_id, color_key, color_name, hex_code) VALUES 
 INSERT INTO color_categories (color_id, color_key, color_name, hex_code) VALUES (9, 'white', '화이트', '#F8F9FA');
 COMMIT;
 
-# 1️⃣ 가상환경 생성 및 활성화
+1️⃣ 가상환경 생성 및 활성화
 python -m venv venv
-source venv/bin/activate   # (Windows: venv\Scripts\activate)
+ctrl + shift + p venv 인터프리티 선택
+venv\Scripts\activate    # (Windows PowerShell)
 
-# 2️⃣ 필요한 패키지 설치
-pip install flask cx_Oracle pillow exifread fastaveragecolor
+2️⃣ 패키지 설치
+pip install -r requirements.txt
+pip install oracledb
 
-# 3️⃣ Oracle DB 연결 설정
-# app.py 내 DB 연결 정보 수정
-conn = cx_Oracle.connect("system", "비밀번호", "localhost/XE")
+3️⃣ Oracle DB 설정 확인
 
-# 4️⃣ color_categories 초기 데이터 삽입 (최초 1회만)
-sqlplus system/비밀번호@XE
--- 위 INSERT문 9개 복사 → 실행 후 COMMIT;
+db_config.py의 아래 부분에서 본인 DB 계정 정보 확인, 수정
 
-# 5️⃣ Flask 서버 실행
+pool = oracledb.create_pool(
+    user="system",
+    password="비밀번호",
+    dsn="localhost:1521/XE",
+    min=2,
+    max=5,
+    increment=1,
+    timeout=60,
+)
+
+4️⃣ Flask 서버 실행
 python app.py
 
-# 6️⃣ 접속
-http://127.0.0.1:5000
+✅ Oracle 테이블 준비 완료
+ * Running on http://127.0.0.1:5000
