@@ -1,37 +1,34 @@
 {% extends "base.html" %} {% block title %}ColorWalk 메인{% endblock
-%} {% block body_class %}lucky-page{% endblock %} {% block content %}
+%} {% block body_class %}lucky-page{% endblock %} {% block main_class
+%}lucky-container{% endblock %} {% block content %}
 
-<main>
-  <!-- 🎯 랜덤 추천 컬러 섹션 -->
-  <section class="ai-color-box">
-    <h3>✨ 오늘의 컬러</h3>
+<!-- 🎯 랜덤 추천 컬러 섹션 -->
+<section class="ai-color-box">
+  <h3>✨ 오늘의 컬러</h3>
 
-    <!-- 컬러 카드 -->
-    <div class="color-card">
-      <div class="color-sample" id="color-sample"></div>
-      <div class="color-info">
-        <h4 id="color-name">💛 옐로우 (Yellow)</h4>
-        <p id="color-hex">#FFD43B</p>
-      </div>
+  <!-- 컬러 카드 -->
+  <div class="color-card">
+    <div class="color-sample" id="color-sample"></div>
+    <div class="color-info">
+      <h4 id="color-name">💛 옐로우 (Yellow)</h4>
+      <p id="color-hex">#FFD43B</p>
     </div>
+  </div>
 
-    <!-- 버튼 -->
-    <div class="btn-group">
-      <button id="upload-btn">📸 이 색상으로 사진 찍으러 가기</button>
-      <button id="refresh-btn" class="outline">
-        🔄 다른 색상 보기
-      </button>
-    </div>
-  </section>
+  <!-- 버튼 -->
+  <div class="btn-group">
+    <button id="upload-btn">📸 이 색상으로 사진 찍으러 가기</button>
+    <button id="refresh-btn" class="outline">🔄 오늘의 색상</button>
+  </div>
+</section>
 
-  <!-- 9가지 감성 컬러 -->
-  <section class="color-grid">
-    <h4>9가지 컬러</h4>
-    <div class="color-palette" id="color-palette">
-      <!-- 버튼 자동 생성됨 -->
-    </div>
-  </section>
-</main>
+<!-- 9가지 감성 컬러 -->
+<section class="color-grid">
+  <h4>9가지 컬러</h4>
+  <div class="color-palette" id="color-palette">
+    <!-- 버튼 자동 생성됨 -->
+  </div>
+</section>
 
 <script src="{{ url_for('static', filename='js/lucky_color.js') }}"></script>
 {% endblock %}

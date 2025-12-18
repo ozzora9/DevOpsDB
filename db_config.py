@@ -1,6 +1,17 @@
 import oracledb
 
-# 오라클 연결 함수
+# ✅ Oracle Connection Pool 생성
+pool = oracledb.create_pool(
+    user="c##colorwalk",             # 사용자명
+    password="walk123",           # 비밀번호
+    dsn="localhost:1521/XE",   # XE 기본 주소
+    min=2,                     # 최소 연결 유지 개수
+    max=5,                     # 최대 연결 개수
+    increment=1,               # 늘어나는 단위
+    timeout=60,                # 유휴 연결 유지 시간(초)
+)
+
+# ✅ 연결 함수 (기존과 동일하게 사용 가능)
 def get_connection():
     try:
         connection = oracledb.connect(

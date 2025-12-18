@@ -2,12 +2,16 @@
 <html lang="ko">
   <head>
     <meta charset="UTF-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1.0"
+    />
     <title>{% block title %}ColorWalk{% endblock %}</title>
     <link
       rel="stylesheet"
       href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"
     />
-        <link
+    <link
       rel="stylesheet"
       href="{{ url_for('static', filename='css/style.css') }}"
     />
@@ -18,19 +22,27 @@
     <header>
       <div class="nav-container">
         <div class="logo">
-          <a href="/"><span>🎨ColorWalk</span></a>
+          <a href="/"
+            >🎨 <span>C</span><span>o</span><span>l</span
+            ><span>o</span><span>r</span> <span>W</span><span>a</span
+            ><span>l</span><span>k</span></a
+          >
         </div>
+        <div class="hamburger" id="hamburger">
+          <i class="fas fa-bars"></i>
+        </div>
+
         <nav class="menu">
           <a
             href="/"
             class="{% if request.path == '/' %}active{% endif %}"
             ><i class="fas fa-home"></i> Home</a
           >
-          <a
+          <!-- <a
             href="/upload"
             class="{% if '/upload' in request.path %}active{% endif %}"
             ><i class="fas fa-camera"></i> Upload</a
-          >
+          > -->
           <a
             href="/gallery/all"
             class="{% if '/gallery' in request.path %}active{% endif %}"
@@ -57,5 +69,13 @@
     <footer>
       <p>© 2025 ColorWalk. 색상으로 감정을 공유하는 공간 🌈</p>
     </footer>
+    <script>
+      const hamburger = document.getElementById("hamburger");
+      const menu = document.querySelector(".menu");
+
+      hamburger.addEventListener("click", () => {
+        menu.classList.toggle("open");
+      });
+    </script>
   </body>
 </html>

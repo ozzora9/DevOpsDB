@@ -1,81 +1,3 @@
-@font-face {
-  font-family: "JejuStoneWall";
-  src: url("https://cdn.jsdelivr.net/gh/projectnoonnu/noonfonts_2210-EF@1.0/EF_jejudoldam.woff2")
-    format("woff2");
-  font-weight: normal;
-  font-display: swap;
-}
-@font-face {
-  font-family: "Suit";
-  src: url("https://cdn.jsdelivr.net/gh/projectnoonnu/noonfonts_suit@1.0/SUIT-Thin.woff2")
-    format("woff2");
-  font-weight: 100;
-  font-display: swap;
-}
-
-@font-face {
-  font-family: "Suit";
-  src: url("https://cdn.jsdelivr.net/gh/projectnoonnu/noonfonts_suit@1.0/SUIT-ExtraLight.woff2")
-    format("woff2");
-  font-weight: 200;
-  font-display: swap;
-}
-
-@font-face {
-  font-family: "Suit";
-  src: url("https://cdn.jsdelivr.net/gh/projectnoonnu/noonfonts_suit@1.0/SUIT-Light.woff2")
-    format("woff2");
-  font-weight: 300;
-  font-display: swap;
-}
-
-@font-face {
-  font-family: "Suit";
-  src: url("https://cdn.jsdelivr.net/gh/projectnoonnu/noonfonts_suit@1.0/SUIT-Regular.woff2")
-    format("woff2");
-  font-weight: normal;
-  font-display: swap;
-}
-
-@font-face {
-  font-family: "Suit";
-  src: url("https://cdn.jsdelivr.net/gh/projectnoonnu/noonfonts_suit@1.0/SUIT-Medium.woff2")
-    format("woff2");
-  font-weight: 500;
-  font-display: swap;
-}
-
-@font-face {
-  font-family: "Suit";
-  src: url("https://cdn.jsdelivr.net/gh/projectnoonnu/noonfonts_suit@1.0/SUIT-SemiBold.woff2")
-    format("woff2");
-  font-weight: 600;
-  font-display: swap;
-}
-
-@font-face {
-  font-family: "Suit";
-  src: url("https://cdn.jsdelivr.net/gh/projectnoonnu/noonfonts_suit@1.0/SUIT-Bold.woff2")
-    format("woff2");
-  font-weight: 700;
-  font-display: swap;
-}
-
-@font-face {
-  font-family: "Suit";
-  src: url("https://cdn.jsdelivr.net/gh/projectnoonnu/noonfonts_suit@1.0/SUIT-ExtraBold.woff2")
-    format("woff2");
-  font-weight: 800;
-  font-display: swap;
-}
-
-@font-face {
-  font-family: "Suit";
-  src: url("https://cdn.jsdelivr.net/gh/projectnoonnu/noonfonts_suit@1.0/SUIT-Heavy.woff2")
-    format("woff2");
-  font-weight: 900;
-  font-display: swap;
-}
 /* ====================================================== */
 /* 🌈 공통 스타일 (모든 페이지에 적용) */
 /* ====================================================== */
@@ -86,19 +8,12 @@
 }
 
 body {
-  font-family: "Suit";
-  font-weight: 700;
-  -ms-overflow-style: none;
-  height: calc(100vh - 60px);
   font-family: "Pretendard", "Noto Sans KR", sans-serif;
   color: #333;
   min-height: 100vh;
   display: flex;
   flex-direction: column;
   background: linear-gradient(to bottom right, #fff5fa, #f3f7ff);
-}
-::-webkit-scrollbar {
-  display: none;
 }
 
 /* ====================================================== */
@@ -118,62 +33,26 @@ header {
 .nav-container {
   max-width: 1200px;
   margin: 0 auto;
-  padding: 16px 30px;
+  padding: 10px 30px;
   display: flex;
   justify-content: space-between;
   align-items: center;
 }
 
 .logo a {
-  font-family: "JejuStoneWall";
   display: flex;
   align-items: center;
+  gap: 8px;
   text-decoration: none;
   font-size: 1.4rem;
-  letter-spacing: -0.03em;
   font-weight: 700;
   color: #222;
-}
-
-.logo a > span:nth-child(1) {
-  color: #f06595;
-}
-.logo a > span:nth-child(2) {
-  color: #f59f00;
-}
-.logo a > span:nth-child(3) {
-  color: #e9c46a;
-}
-.logo a > span:nth-child(4) {
-  color: #2a9d8f;
-}
-.logo a > span:nth-child(5) {
-  color: #457b9d;
-}
-.logo a > span:nth-child(6) {
-  color: #6a4c93;
-}
-.logo a > span:nth-child(7) {
-  color: #f06595;
-}
-.logo a > span:nth-child(8) {
-  color: #f59f00;
-}
-.logo a > span:nth-child(9) {
-  color: #e9c46a;
 }
 
 .logo-icon {
   width: 28px;
   height: 28px;
   vertical-align: middle;
-}
-
-.hamburger {
-  display: none;
-  font-size: 1.4rem;
-  cursor: pointer;
-  color: #333;
 }
 
 .menu {
@@ -251,7 +130,9 @@ footer {
 /* ================================ */
 @media (max-width: 768px) {
   .nav-container {
-    position: relative;
+    flex-direction: column;
+    align-items: stretch;
+    padding: 12px 16px;
   }
 
   .logo {
@@ -259,45 +140,21 @@ footer {
     justify-content: center;
   }
 
-  .hamburger {
-    display: block;
-    position: absolute;
-    right: 16px;
-    top: 50%;
-    transform: translateY(-50%);
-  }
-
   .menu {
-    position: absolute;
-    top: 100%;
-    left: 0;
-    width: 100%;
-
-    background: rgba(255, 255, 255, 0.95);
-    backdrop-filter: blur(12px);
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04),
-      0 12px 24px rgba(0, 0, 0, 0.08);
-    flex-direction: column;
-    align-items: center;
-    gap: 18px;
-    padding: 24px 0;
-
-    transform: translateY(-10px);
-    opacity: 0;
-    pointer-events: none;
-
-    transition: all 0.3s ease;
-  }
-
-  .menu.open {
-    transform: translateY(0);
-    opacity: 1;
-    pointer-events: auto;
+    justify-content: space-around;
+    gap: 0;
+    padding-top: 8px;
+    border-top: 1px solid rgba(0, 0, 0, 0.05);
   }
 
   .menu a {
-    justify-content: center;
-    font-size: 0.95rem;
+    flex-direction: column;
+    font-size: 0.75rem;
+    gap: 4px;
+  }
+
+  .menu a i {
+    font-size: 1.2rem;
   }
 }
 
@@ -324,8 +181,8 @@ body.register {
 .auth-box {
   background: white;
   border-radius: 20px;
-  padding: 48px 28px;
-  width: 90%;
+  padding: 50px 60px;
+  width: 100%;
   max-width: 420px;
   text-align: center;
   box-shadow: 0 8px 30px rgba(0, 0, 0, 0.08);
@@ -404,17 +261,178 @@ body.register {
   }
 }
 
-/* ======================================================
+/* ====================================================== */
 /* 🩵 MAIN PAGE (main.html) */
 /* ====================================================== */
 
-/* body.lucky-page {
+body.main-page .today-color-box h3 {
+  font-size: 1.3rem;
+  margin-bottom: 40px; /* 🔹 기존 20px → 40px로 변경 */
+  text-align: left;
+  color: #444;
+  font-weight: 700;
+}
+
+body.main-page {
+  background: linear-gradient(180deg, #fff5fa, #f7f2ff);
+}
+
+/* 메인 컨테이너 */
+body.main-page .main-container {
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 60px 20px;
+}
+
+/* 인트로 */
+body.main-page .intro {
+  text-align: center;
+  margin-bottom: 60px;
+}
+
+body.main-page .intro .tag {
+  color: #a855f7;
+  font-weight: bold;
+  margin-bottom: 8px;
+}
+
+body.main-page .intro h1 {
+  font-size: 2.4rem;
+  margin: 10px 0;
+  font-weight: 700;
+}
+
+body.main-page .intro .desc {
+  color: #555;
+  line-height: 1.6;
+  font-size: 1.1rem;
+}
+
+body.main-page .main-buttons {
+  margin-top: 24px;
+  display: flex;
+  justify-content: center;
+  gap: 20px;
+}
+
+/* 오늘의 컬러 */
+body.main-page .today-color-box {
+  background: white;
+  border-radius: 20px;
+  padding: 30px 40px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+  margin-bottom: 60px;
+}
+
+body.main-page .today-color {
+  display: flex;
+  align-items: left;
+  justify-content: left;
+  gap: 40px;
+}
+
+body.main-page .today-color .color-sample {
+  width: 140px;
+  height: 140px;
+  border-radius: 16px;
+  background: #339af0;
+  flex-shrink: 0;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+body.main-page .today-color .color-info {
+  text-align: left;
+  max-width: 400px;
+}
+
+body.main-page .today-color .color-info h4 {
+  font-size: 1.3rem;
+  margin-bottom: 8px;
+}
+
+/* 인기 색상 */
+body.main-page .popular-colors {
+  text-align: center;
+  margin-bottom: 60px;
+}
+
+body.main-page .color-rank {
+  display: flex;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 24px;
+  margin-top: 30px;
+}
+
+body.main-page .color-card {
+  background: white;
+  border-radius: 16px;
+  padding: 20px;
+  width: 180px;
+  text-align: center;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.06);
+  transition: 0.3s;
+}
+
+body.main-page .color-card:hover {
+  transform: translateY(-5px);
+}
+
+body.main-page .color-preview {
+  width: 60px;
+  height: 60px;
+  margin: 0 auto 10px;
+  border-radius: 10px;
+}
+
+/* 컬러 카테고리 */
+body.main-page .category-colors {
+  text-align: center;
+}
+
+body.main-page .category-desc {
+  margin-bottom: 25px;
+  color: #666;
+}
+
+body.main-page .category-list {
+  display: flex;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 14px;
+}
+
+body.main-page .category-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  width: 120px;
+  height: 50px;
+  border-radius: 14px;
+  border: none;
+  cursor: pointer;
+  font-size: 1rem;
+  color: #333;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+  transition: 0.25s;
+}
+
+body.main-page .category-btn:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 6px 14px rgba(0, 0, 0, 0.1);
+}
+
+/* ====================================================== */
+/* 💛 LUCKY COLOR PAGE (luckycolor.html) */
+/* ====================================================== */
+
+body.lucky-page {
   background: linear-gradient(to bottom right, #fff4f9, #f9f4ff);
-} */
+}
 
 /* 💡 luckycolor 전용 요소만 스타일링 */
 body.lucky-page .ai-color-box {
-  width: 85%;
   margin-top: 60px;
   background: rgba(255, 255, 255, 0.9);
   border-radius: 24px;
@@ -424,12 +442,9 @@ body.lucky-page .ai-color-box {
   max-width: 700px;
   margin-left: auto;
   margin-right: auto;
-  overflow: hidden;
 }
 
 body.lucky-page .ai-color-box h3 {
-  font-family: "JejuStoneWall";
-  letter-spacing: -0.03em;
   font-size: 1.6rem;
   margin-bottom: 25px;
   color: #444;
@@ -503,8 +518,6 @@ body.lucky-page .color-grid {
 }
 
 body.lucky-page .color-palette {
-  margin: 12px 0;
-  padding: 0 8px;
   display: flex;
   justify-content: center;
   flex-wrap: wrap;
@@ -531,73 +544,30 @@ body.lucky-page .color-btn:hover {
 }
 
 /* ====================================================== */
-/* 📱 Lucky Color - Tablet & Mobile (768px 이하) */
-/* ====================================================== */
-
-@media (max-width: 768px) {
-  /* 전체 컨테이너 리듬 */
-  body.lucky-page .ai-color-box {
-    margin: 40px auto;
-    padding: 32px 20px;
-  }
-
-  /* 컬러 카드: 간격 축소 */
-  body.lucky-page .color-card {
-    gap: 18px;
-  }
-
-  /* 컬러 샘플 살짝 축소 */
-  body.lucky-page .color-sample {
-    width: 140px;
-    height: 140px;
-    border-radius: 22px;
-  }
-
-  /* 버튼: 너무 커 보이지 않게 */
-  body.lucky-page .btn-group button {
-    font-size: 0.95rem;
-    padding: 11px 22px;
-  }
-
-  /* 팔레트 간격 정리 */
-  body.lucky-page .color-palette {
-    flex-wrap: nowrap;
-
-    display: flex;
-    gap: 14px;
-
-    overflow-x: auto;
-    overflow-y: hidden;
-    padding: 4px 8px 8px;
-
-    scroll-snap-type: x mandatory;
-    -webkit-overflow-scrolling: touch;
-  }
-}
-
-/* ====================================================== */
-/* 📱 Lucky Color - Mobile Optimization(480px) */
+/* 📱 Lucky Color - Mobile Optimization */
 /* ====================================================== */
 
 @media (max-width: 480px) {
+  /* 전체 박스 여백 줄이기 */
   body.lucky-page .ai-color-box {
     padding: 24px 16px;
-    border-radius: 20px;
-    margin: 30px auto;
+    margin-top: 30px;
   }
 
+  /* 컬러 카드 가로 → 세로 정렬 */
   body.lucky-page .color-card {
     flex-direction: column;
-    margin-bottom: 26px;
     gap: 14px;
   }
 
+  /* 색상 박스 크기 축소 */
   body.lucky-page .color-sample {
     width: 120px;
     height: 120px;
     border-radius: 20px;
   }
 
+  /* 텍스트 중앙 정렬 */
   body.lucky-page .color-info {
     text-align: center;
     max-width: 100%;
@@ -620,41 +590,15 @@ body.lucky-page .color-btn:hover {
 
   /* 9가지 컬러 팔레트 크기 줄이기 */
   body.lucky-page .color-btn {
-    flex: 0 0 auto;
-    scroll-snap-align: center;
-
-    width: 52px;
-    height: 52px;
-    border-radius: 16px;
-
-    box-shadow: none;
+    width: 48px;
+    height: 48px;
+    border-radius: 14px;
+    font-size: 1.2rem;
   }
 
   body.lucky-page .color-grid {
     margin-top: 40px;
   }
-
-  body.lucky-page .color-palette {
-    flex-wrap: nowrap;
-
-    display: flex;
-    gap: 14px;
-
-    overflow-x: auto;
-    overflow-y: hidden;
-    padding: 4px 8px 8px;
-
-    scroll-snap-type: x mandatory;
-    -webkit-overflow-scrolling: touch;
-  }
-}
-
-body.lucky-page .color-palette::-webkit-scrollbar {
-  display: none;
-}
-
-body.lucky-page .color-palette {
-  scrollbar-width: none; /* Firefox */
 }
 
 /* ====================================================== */
@@ -667,9 +611,9 @@ body.upload-page {
 
 /* 전체 컨테이너 */
 .upload-container {
-  width: 90%;
+  width: 60%;
   max-width: 600px;
-  margin: 30px auto;
+  margin: 60px auto;
   padding: 30px;
   background: rgba(255, 255, 255, 0.95);
   border-radius: 24px;
@@ -894,7 +838,7 @@ body.gallery-page {
 
 .gallery-container {
   max-width: 1100px;
-  margin: 30px auto;
+  margin: 60px auto;
   padding: 20px;
 }
 
@@ -953,7 +897,6 @@ body.gallery-page {
   border-radius: 20px;
   padding: 8px 18px;
   font-size: 0.9rem;
-  font-weight: 500;
   cursor: pointer;
   transition: 0.3s;
   background: #f1f1f1;
@@ -1426,10 +1369,14 @@ body.mypage {
   border-radius: 20px;
   box-shadow: 0 6px 20px rgba(0, 0, 0, 0.05);
   padding: 30px;
-  margin-bottom: 40px;
+
+  /* ✅ 핵심 수정 부분 */
+  width: 680px; /* 항상 일정한 가로폭 (예: 사진 있을 때 기준 폭) */
+  margin: 0 auto 40px auto; /* 가운데 정렬 */
   display: flex;
   align-items: center;
-  justify-content: center;
+  justify-content: space-between; /* 내부 좌우 균형 유지 */
+  transition: all 0.3s ease; /* 부드럽게 유지 */
 }
 
 .profile-left {
@@ -1489,64 +1436,18 @@ body.mypage {
   transform: translateY(-2px);
   box-shadow: 0 3px 10px rgba(255, 100, 200, 0.3);
 }
-
-/* 차트 영역 */
-.mypage-stats {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 30px;
-  margin-bottom: 40px;
+.myphotos {
+  width: 680px; /* ✅ 프로필 카드와 동일한 폭 */
+  margin: 0 auto; /* ✅ 항상 가운데 정렬 */
+  text-align: center; /* ✅ 내부 텍스트 중앙 정렬 */
 }
-
-.chart-box {
-  background: #fff;
-  flex: 1;
-  min-width: 320px;
-  border-radius: 20px;
-  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
-  padding: 20px;
+.myphotos .empty {
+  text-align: center;
+  color: #777;
+  font-size: 1rem;
+  width: 100%;
+  white-space: nowrap; /* ✅ 한 줄 유지 */
 }
-
-/* 감정 히스토리 */
-.color-history {
-  background: #fff;
-  border-radius: 20px;
-  padding: 30px;
-  margin-bottom: 40px;
-  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
-}
-
-.history-list {
-  list-style: none;
-  margin-top: 20px;
-}
-
-.history-list li {
-  display: flex;
-  align-items: center;
-  gap: 14px;
-  padding: 10px 0;
-  border-bottom: 1px solid #eee;
-}
-
-.history-list .color-tag {
-  font-size: 1.6rem;
-}
-
-.history-content strong {
-  font-size: 1.1rem;
-}
-
-.history-content small {
-  color: #888;
-  margin-left: 10px;
-}
-
-.history-content p {
-  margin-top: 4px;
-  color: #666;
-}
-
 /* 사진 카드 */
 .myphotos .tab-buttons {
   display: flex;
@@ -1678,7 +1579,6 @@ body.mypage {
   box-shadow: 0 6px 16px rgba(0, 0, 0, 0.15);
   margin: 0 auto;
   transition: width 0.3s ease;
-  z-index: -1;
 }
 
 @media (max-width: 1024px) {
@@ -1701,6 +1601,7 @@ h1.rank-page {
   margin-top: 40px; /* ✅ 상단 여백 추가 */
   margin-bottom: 30px;
 }
+
 table.rank-page {
   width: 80%;
   margin: 0 auto;
@@ -1710,19 +1611,23 @@ table.rank-page {
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
   background: white;
 }
+
 th,
 td {
   padding: 12px;
   text-align: center;
   border-bottom: 1px solid #e5e7eb;
 }
+
 th {
   background: #f3f4f6;
   font-weight: 600;
 }
+
 tr:hover {
   background-color: #f9fafb;
 }
+
 .empty {
   text-align: center;
   padding: 30px;
