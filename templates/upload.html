@@ -1,10 +1,11 @@
-{% extends "base.html" %} {% block title %}사진 업로드 -
-ColorWalk{%endblock %} {% block body_class %}upload-page{% endblock %}
-{% block main_class %}upload-container{% endblock %} {% block content
-%}
+{% extends "base.html" %} {% block title %}사진 업로드 - ColorWalk{%
+endblock %} {% block body_class %}upload-page{% endblock %} {% block
+main_class %}upload-container{% endblock %} {% block content %}
 
 <form id="upload-form" method="POST" enctype="multipart/form-data">
-  <!-- 🎨 선택된 색상 hidden으로 전달 -->
+  <input type="hidden" name="gps_lat" id="gps_lat" />
+  <input type="hidden" name="gps_lon" id="gps_lon" />
+
   <input
     type="hidden"
     name="color_id"
@@ -12,9 +13,10 @@ ColorWalk{%endblock %} {% block body_class %}upload-page{% endblock %}
     value="{{ color_id if color_id else '' }}"
   />
 
-  <!-- 🎨 선택된 색상 자동 표시 영역 -->
+  <!-- 🎨 선택된 색상 표시 -->
   <section class="color-select-box">
     <h3>🎨 선택한 색상</h3>
+
     <div class="ai-color-card" id="color-display">
       <div class="ai-color-left">
         <div class="ai-color-sample" id="color-sample"></div>
@@ -29,50 +31,49 @@ ColorWalk{%endblock %} {% block body_class %}upload-page{% endblock %}
     </div>
   </section>
 
+  <button type="button" id="gps-btn">📍 위치 확인</button>
   <!-- 📸 사진 업로드 -->
   <section class="upload-box">
     <h3>📷 사진 업로드</h3>
-    <div class="upload-area">
+
+    <!-- label로 감싸서 클릭 = 파일 선택 -->
+    <label for="file-input" class="upload-area">
       <div class="camera-box">
-        <video class="camera-view" id="camera-view" autoplay>
-          <!-- <input
-            type="file"
-            id="file-input"
-            name="image"
-            accept="image/*"
-            hidden
-          /> -->
-          <!-- <p>
-            클릭하여 사진을 선택하세요<br /><small
-              >또는 드래그 앤 드롭</small
-            >
-          </p> -->
-        </video>
+        <div class="camera-placeholder">
+          <p>
+            클릭하여 사진을 선택하세요<br />
+            <small>모바일에서는 카메라가 열립니다</small>
+          </p>
+        </div>
         <div class="shutter-btn">
           <i class="fas fa-upload"></i>
         </div>
       </div>
-    </div>
+    </label>
+
+    <!-- 실제 파일 input (핵심) -->
+    <input
+      type="file"
+      id="file-input"
+      name="image"
+      accept="image/*"
+      capture="environment"
+      hidden
+      required
+    />
+
+    <!-- 📷 미리보기 -->
     <img
       id="preview"
       style="
         display: none;
         max-width: 100%;
-        margin-top: 10px;
-        border-radius: 10px;
+        margin-top: 12px;
+        border-radius: 12px;
       "
     />
 
-    <div class="input-group">
-      <label for="location">📍 위치</label>
-      <input
-        type="text"
-        id="location"
-        name="location"
-        placeholder="예: 서울 성수동, 부산 해운대 등"
-      />
-    </div>
-
+    <!-- 📝 설명 -->
     <div class="input-group">
       <label for="description">📝 설명</label>
       <textarea
@@ -83,11 +84,19 @@ ColorWalk{%endblock %} {% block body_class %}upload-page{% endblock %}
       ></textarea>
     </div>
 
-    <button type="submit" class="btn primary upload-btn">
+    <!-- 업로드 버튼 -->
+    <button
+      type="submit"
+      class="btn primary upload-btn"
+      id="submit-btn"
+      disabled
+    >
       업로드하기
     </button>
   </section>
 </form>
+
 <script src="https://unpkg.com/fast-average-color@9.5.0/dist/index.browser.min.js"></script>
 <script src="{{ url_for('static', filename='js/upload.js') }}"></script>
+
 {% endblock %}

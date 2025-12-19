@@ -66,19 +66,19 @@ def calculate_ranking():
     cur = conn.cursor()
 
     cur.execute("""
-        SELECT U.EMAIL, TO_CHAR(P.SHOT_TIME), P.GPS_LATITUDE, P.GPS_LONGITUDE
+        SELECT U.EMAIL, TO_CHAR(P.CREATED_AT), P.GPS_LATITUDE, P.GPS_LONGITUDE
         FROM PHOTOS P
         JOIN USERS U ON P.USER_ID = U.USER_ID
         WHERE P.GPS_LATITUDE IS NOT NULL AND P.GPS_LONGITUDE IS NOT NULL
-        ORDER BY U.EMAIL, P.SHOT_TIME
+        ORDER BY U.EMAIL, P.CREATED_AT
     """)
     rows = cur.fetchall()
     conn.close()
 
     # 사용자별 데이터 분류
     users = {}
-    for email, shot_time, lat, lon in rows:
-        users.setdefault(email, []).append((shot_time, lat, lon))
+    for email, created_at, lat, lon in rows:
+        users.setdefault(email, []).append((created_at, lat, lon))
 
     # 각 유저 점수 계산
     results = []
@@ -246,8 +246,6 @@ def upload():
     file.save(save_path)
     db_path = f"uploads/{filename}"
 
-    shot_time = None
-
     # ✅ EXIF 정보가 존재할 경우 보조적으로 읽기
     try:
         img = Image.open(save_path)
@@ -257,7 +255,7 @@ def upload():
             for tag_id, value in exif_data.items():
                 tag = TAGS.get(tag_id, tag_id)
                 if tag == "DateTimeOriginal":
-                    shot_time = value
+                    created_at = value
                 elif tag == "GPSInfo":
                     for t in value:
                         sub_tag = GPSTAGS.get(t, t)
@@ -286,23 +284,23 @@ def upload():
     conn = get_connection()
     cur = conn.cursor()
     cur.execute("""
-        INSERT INTO PHOTOS (
-            user_id, color_id, description, location, image_path,
-            gps_latitude, gps_longitude, shot_time, likes_count, created_at
-        ) VALUES (
-            :user_id, :color_id, :description, :location, :image_path,
-            :gps_latitude, :gps_longitude, :shot_time, 0, SYSTIMESTAMP
-        )
-    """, {
-        "user_id": int(user_id),
-        "color_id": int(color_id),
-        "description": desc,
-        "location": loc,
-        "image_path": db_path,
-        "gps_latitude": gps_lat,
-        "gps_longitude": gps_lon,
-        "shot_time": shot_time
-    })
+    INSERT INTO PHOTOS (
+        user_id, color_id, description, location, image_path,
+        gps_latitude, gps_longitude, likes_count, created_at
+    )
+    VALUES (
+        :user_id, :color_id, :description, :location, :image_path,
+        :gps_latitude, :gps_longitude, 0, SYSTIMESTAMP
+    )
+""", {
+    "user_id": int(user_id),
+    "color_id": int(color_id),
+    "description": desc,
+    "location": loc,
+    "image_path": db_path,
+    "gps_latitude": gps_lat,
+    "gps_longitude": gps_lon
+})
     conn.commit()
     conn.close()
 
@@ -384,7 +382,7 @@ def photo_detail(photo_id):
 
     cur.execute("""
         SELECT p.photo_id, u.name, p.description, p.location, p.image_path,
-        p.shot_time, p.likes_count, p.created_at
+        p.created_at, p.likes_count, p.created_at
         FROM PHOTOS p
         JOIN USERS u ON p.user_id = u.user_id
         WHERE p.photo_id = :photo_id
@@ -413,7 +411,7 @@ def photo_detail(photo_id):
         "description": photo[2],
         "location": photo[3],
         "image_path": photo[4],
-        "shot_time": photo[5],
+        "created_at": photo[5],
         "likes_count": likes_count,
         "liked": liked,
         "comments": comments

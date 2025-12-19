@@ -1,4 +1,13 @@
 document.addEventListener("DOMContentLoaded", () => {
+  /* ===============================
+     🧱 페이지 가드 (이게 핵심)
+     =============================== */
+  // 갤러리 카드가 없으면 이 JS는 실행 안 함
+  if (!document.querySelector(".photo-card")) return;
+
+  /* ===============================
+     🎨 상단 필터 / 타이틀
+     =============================== */
   const filterButtons = document.querySelectorAll(".filter-btn");
   const titleEl = document.getElementById("gallery-title");
   const descEl = document.getElementById("gallery-desc");
@@ -16,56 +25,43 @@ document.addEventListener("DOMContentLoaded", () => {
     9: { key: "white", name: "화이트", hex: "#F8F9FA" },
   };
 
-  // ✅ URL에서 color_id 또는 key 추출
   const pathParts = window.location.pathname.split("/");
   let rawColor = pathParts.length > 2 ? pathParts[2] : "all";
   rawColor = rawColor.replace(/\?.*$/, "");
 
-  // ✅ 숫자 또는 key 모두 대응
   let current;
   if (isNaN(rawColor)) {
-    // red, blue 등 문자열이면 key로 매칭
     current = Object.values(colorMap).find(
       (c) => c.key === rawColor
-    ) || {
-      key: "all",
-      name: "전체",
-      hex: "#EDE7F6",
-    };
+    ) || { key: "all", name: "전체", hex: "#EDE7F6" };
   } else {
-    // 숫자면 id로 매칭
-    const colorId = parseInt(rawColor);
-    current = colorMap[colorId] || {
+    current = colorMap[parseInt(rawColor)] || {
       key: "all",
       name: "전체",
       hex: "#EDE7F6",
     };
   }
 
-  // ✅ 상단 타이틀 & 아이콘 업데이트
   titleEl.textContent = `${current.name} 갤러리`;
-  descEl.textContent = `${current.hex}`;
+  descEl.textContent = current.hex;
   iconEl.style.background = current.hex;
 
-  // ✅ 버튼 상태 갱신
   filterButtons.forEach((b) => b.classList.remove("active"));
   const targetBtn = document.querySelector(
     `.filter-btn[data-color="${current.key}"]`
   );
   if (targetBtn) targetBtn.classList.add("active");
 
-  // ✅ 버튼 클릭 시 서버로 이동
   filterButtons.forEach((btn) => {
     btn.addEventListener("click", () => {
-      const color = btn.getAttribute("data-color");
-      console.log("🔥 버튼 클릭됨:", color);
+      const color = btn.dataset.color;
       window.location.href = `/gallery/${color}`;
     });
   });
-});
-  // ===================================================
-  // 🪟 사진 클릭 시 모달 열기 기능 추가
-  // ===================================================
+
+  /* ===============================
+     🪟 모달 DOM
+     =============================== */
   const modal = document.getElementById("photoModal");
   const closeBtn = document.querySelector(".close-btn");
   const modalImg = document.getElementById("modalImage");
@@ -79,7 +75,11 @@ document.addEventListener("DOMContentLoaded", () => {
   const commentInput = document.getElementById("commentInput");
   const commentSubmit = document.getElementById("commentSubmit");
 
-  // ✅ 댓글 목록 렌더링 함수
+  if (!modal || !modalImg) return;
+
+  /* ===============================
+     💬 댓글 렌더링
+     =============================== */
   const renderComments = (comments) => {
     commentList.innerHTML = "";
     comments.forEach((c) => {
@@ -89,41 +89,53 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   };
 
-  // ✅ 각 사진 카드 클릭 시 상세보기
+  /* ===============================
+     📸 사진 클릭 → 모달
+     =============================== */
   document.querySelectorAll(".photo-card").forEach((card) => {
     card.addEventListener("click", async () => {
-      const photoId = card.getAttribute("data-photo-id");
+      const photoId = card.dataset.photoId;
       modal.style.display = "flex";
 
       try {
         const res = await fetch(`/photo/${photoId}`);
         const data = await res.json();
 
-        // 모달 채우기
-if (data.image_path.startsWith("static/")) {
-  modalImg.src = `/${data.image_path}`;
-} else {
-  modalImg.src = `/static/${data.image_path}`;
-}
+        modalImg.src = data.image_path.startsWith("static/")
+          ? `/${data.image_path}`
+          : `/static/${data.image_path}`;
 
-modalDesc.textContent = data.description || "설명 없음";
-modalLoc.textContent = `📍 ${data.location || "위치 미등록"}`;
-modalUser.textContent = `👤 ${data.username}`;
-modalShotTime.textContent = `📅 ${data.shot_time || "촬영시간 정보 없음"}`;
-likeCount.textContent = data.likes_count;
-likeBtn.textContent = data.liked ? "❤️ 취소" : "🤍 좋아요";
+        modalDesc.textContent = data.description || "설명 없음";
+        if (data.location) {
+          modalLoc.textContent = `📍 ${data.location}`;
+        } else if (data.gps_latitude && data.gps_longitude) {
+          modalLoc.textContent = `📍 ${data.gps_latitude.toFixed(
+            5
+          )}, ${data.gps_longitude.toFixed(5)}`;
+        } else {
+          modalLoc.textContent = "📍 위치 미등록";
+        }
+
+        modalUser.textContent = `👤 ${data.username}`;
+        modalShotTime.textContent = `📅 ${
+          data.created_at || "촬영시간 정보 없음"
+        }`;
+        likeCount.textContent = data.likes_count;
+        likeBtn.textContent = data.liked ? "❤️ 취소" : "🤍 좋아요";
 
         renderComments(data.comments);
 
-        // 좋아요 버튼 동작
         likeBtn.onclick = async () => {
-          const res = await fetch(`/like/${photoId}`, { method: "POST" });
+          const res = await fetch(`/like/${photoId}`, {
+            method: "POST",
+          });
           const result = await res.json();
           likeCount.textContent = result.likes_count;
-          likeBtn.textContent = result.liked ? "❤️ 취소" : "🤍 좋아요";
+          likeBtn.textContent = result.liked
+            ? "❤️ 취소"
+            : "🤍 좋아요";
         };
 
-        // 댓글 등록
         commentSubmit.onclick = async () => {
           const content = commentInput.value.trim();
           if (!content) return;
@@ -142,14 +154,14 @@ likeBtn.textContent = data.liked ? "❤️ 취소" : "🤍 좋아요";
     });
   });
 
-  // ✅ 모달 닫기 버튼
+  /* ===============================
+     ❌ 모달 닫기
+     =============================== */
   closeBtn.addEventListener("click", () => {
     modal.style.display = "none";
   });
 
-  // ✅ 모달 바깥 클릭 시 닫기
   window.addEventListener("click", (e) => {
-    if (e.target === modal) {
-      modal.style.display = "none";
-    }
+    if (e.target === modal) modal.style.display = "none";
   });
+});

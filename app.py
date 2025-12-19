@@ -8,6 +8,11 @@ from PIL.ExifTags import TAGS, GPSTAGS
 import time
 from math import radians, sin, cos, sqrt, atan2
 from datetime import datetime
+import uuid
+
+
+print("🔥 THIS IS app.py 🔥")
+
 
 # ✅ 거리 계산 (하버사인 공식)
 def calc_distance(lat1, lon1, lat2, lon2):
@@ -66,19 +71,19 @@ def calculate_ranking():
     cur = conn.cursor()
 
     cur.execute("""
-        SELECT U.EMAIL, TO_CHAR(P.SHOT_TIME), P.GPS_LATITUDE, P.GPS_LONGITUDE
+        SELECT U.EMAIL, TO_CHAR(P.CREATED_AT), P.GPS_LATITUDE, P.GPS_LONGITUDE
         FROM PHOTOS P
         JOIN USERS U ON P.USER_ID = U.USER_ID
         WHERE P.GPS_LATITUDE IS NOT NULL AND P.GPS_LONGITUDE IS NOT NULL
-        ORDER BY U.EMAIL, P.SHOT_TIME
+        ORDER BY U.EMAIL, P.CREATED_AT
     """)
     rows = cur.fetchall()
     conn.close()
 
     # 사용자별 데이터 분류
     users = {}
-    for email, shot_time, lat, lon in rows:
-        users.setdefault(email, []).append((shot_time, lat, lon))
+    for email, created_at, lat, lon in rows:
+        users.setdefault(email, []).append((created_at, lat, lon))
 
     # 각 유저 점수 계산
     results = []
@@ -254,7 +259,11 @@ def upload():
     user_id = session.get("user_id")
     if not user_id:
         return "<h3>⚠️ 로그인 후 이용해주세요.</h3>"
+    
+    print("📦 FORM DATA:", request.form)
+    print("📦 FILES:", request.files)
 
+    # ===== 기본 폼 데이터 =====
     desc = request.form.get('description')
     loc = request.form.get('location')
     color_id = int(request.form.get('color_id') or 1)
@@ -263,54 +272,85 @@ def upload():
     if not file:
         return "<h3>⚠️ 이미지는 반드시 선택해야 합니다.</h3>"
 
-    filename = secure_filename(file.filename)
-    save_path = os.path.join(app.config['UPLOAD_FOLDER'], filename)
+    # ===== 파일 저장 (UUID) =====
+    mimetype = file.mimetype
+    if mimetype == "image/jpeg":
+        ext = ".jpg"
+    elif mimetype == "image/png":
+        ext = ".png"
+    else:
+        ext = ".jpg"
+
+    filename = secure_filename(f"{uuid.uuid4().hex}{ext}")
+    save_path = os.path.join(app.config["UPLOAD_FOLDER"], filename)
     file.save(save_path)
+
     db_path = f"uploads/{filename}"
 
-    gps_lat, gps_lon, shot_time = None, None, None
-    try:
-        img = Image.open(save_path)
-        exif_data = img._getexif()
-        if exif_data:
-            gps_info = {}
-            for tag_id, value in exif_data.items():
-                tag = TAGS.get(tag_id, tag_id)
-                if tag == "DateTimeOriginal":
-                    shot_time = value
-                elif tag == "GPSInfo":
-                    for t in value:
-                        sub_tag = GPSTAGS.get(t, t)
-                        gps_info[sub_tag] = value[t]
+    # ==================================================
+    # 📍 1순위: JS에서 넘어온 GPS
+    # ==================================================
+    gps_lat = request.form.get("gps_lat", type=float)
+    gps_lon = request.form.get("gps_lon", type=float)
 
-            if gps_info:
-                gps_lat = convert_to_decimal(gps_info.get("GPSLatitude"))
-                gps_lon = convert_to_decimal(gps_info.get("GPSLongitude"))
-                # ✅ Ref값으로 북위/남위, 동경/서경 보정
-                if gps_info.get("GPSLatitudeRef") == "S":
-                    gps_lat = -gps_lat
-                if gps_info.get("GPSLongitudeRef") == "W":
-                    gps_lon = -gps_lon
-    except Exception as e:
-        print("⚠️ EXIF 파싱 실패:", e)
+    created_at = None
 
-    # ✅ GPS 정보가 없는 경우, 대한민국 내 랜덤 좌표 지정
+    # ==================================================
+    # 📍 2순위: EXIF GPS (JS GPS 없을 때만)
+    # ==================================================
     if gps_lat is None or gps_lon is None:
-        import random
-        gps_lat = round(random.uniform(34.2, 37.9), 6)
-        gps_lon = round(random.uniform(126.5, 129.5), 6)
-        print(f"📍 랜덤 좌표 지정됨 → 위도 {gps_lat}, 경도 {gps_lon}")
+        try:
+            img = Image.open(save_path)
+            exif_data = img._getexif()
 
-    # ✅ DB 저장
+            if exif_data:
+                gps_info = {}
+
+                for tag_id, value in exif_data.items():
+                    tag = TAGS.get(tag_id, tag_id)
+
+                    if tag == "DateTimeOriginal":
+                        created_at = value
+
+                    elif tag == "GPSInfo":
+                        for t in value:
+                            sub_tag = GPSTAGS.get(t, t)
+                            gps_info[sub_tag] = value[t]
+
+                if gps_info:
+                    gps_lat = convert_to_decimal(gps_info.get("GPSLatitude"))
+                    gps_lon = convert_to_decimal(gps_info.get("GPSLongitude"))
+
+                    if gps_info.get("GPSLatitudeRef") == "S":
+                        gps_lat = -gps_lat
+                    if gps_info.get("GPSLongitudeRef") == "W":
+                        gps_lon = -gps_lon
+
+        except Exception as e:
+            print("⚠️ EXIF 파싱 실패:", e)
+
+    # ==================================================
+    # 📍 3순위: GPS 없으면 None (랜덤 제거!)
+    # ==================================================
+    if gps_lat is None or gps_lon is None:
+        print("📍 GPS 없음 → NULL로 저장")
+        gps_lat = None
+        gps_lon = None
+
+    print("📍 최종 GPS:", gps_lat, gps_lon)
+    print("📸 저장 파일:", save_path)
+
+    # ===== DB 저장 =====
     conn = get_connection()
     cur = conn.cursor()
     cur.execute("""
         INSERT INTO PHOTOS (
             user_id, color_id, description, location, image_path,
-            gps_latitude, gps_longitude, shot_time, likes_count, created_at
-        ) VALUES (
+            gps_latitude, gps_longitude, likes_count, created_at
+        )
+        VALUES (
             :user_id, :color_id, :description, :location, :image_path,
-            :gps_latitude, :gps_longitude, :shot_time, 0, SYSTIMESTAMP
+            :gps_latitude, :gps_longitude, 0, SYSTIMESTAMP
         )
     """, {
         "user_id": int(user_id),
@@ -319,9 +359,9 @@ def upload():
         "location": loc,
         "image_path": db_path,
         "gps_latitude": gps_lat,
-        "gps_longitude": gps_lon,
-        "shot_time": shot_time
+        "gps_longitude": gps_lon
     })
+
     conn.commit()
     conn.close()
 
@@ -412,7 +452,6 @@ def gallery(color_key=None):
     )
 
 
-
 # =========================================
 # 사진 상세 보기 API (팝업용)
 # =========================================
@@ -423,41 +462,62 @@ def photo_detail(photo_id):
     cur = conn.cursor()
 
     cur.execute("""
-        SELECT p.photo_id, u.name, p.description, p.location, p.image_path,
-        p.shot_time, p.likes_count, p.created_at
+        SELECT
+            p.photo_id,
+            u.name,
+            p.description,
+            p.location,
+            p.image_path,
+            p.gps_latitude,
+            p.gps_longitude,
+            p.created_at,
+            p.likes_count
         FROM PHOTOS p
         JOIN USERS u ON p.user_id = u.user_id
         WHERE p.photo_id = :photo_id
     """, {"photo_id": photo_id})
+
     photo = cur.fetchone()
 
-    cur.execute("SELECT COUNT(*) FROM likes WHERE photo_id = :photo_id", {"photo_id": photo_id})
+    cur.execute(
+        "SELECT COUNT(*) FROM likes WHERE photo_id = :photo_id",
+        {"photo_id": photo_id}
+    )
     likes_count = cur.fetchone()[0]
 
-    cur.execute("SELECT 1 FROM likes WHERE photo_id = :photo_id AND user_id = :user_id",
-                {"photo_id": photo_id, "user_id": user_id})
+    cur.execute(
+        "SELECT 1 FROM likes WHERE photo_id = :photo_id AND user_id = :user_id",
+        {"photo_id": photo_id, "user_id": user_id}
+    )
     liked = bool(cur.fetchone())
 
     cur.execute("""
         SELECT c.content, u.name
         FROM comments c
         JOIN users u ON c.user_id = u.user_id
-        WHERE c.photo_id = :photo_id ORDER BY c.created_at ASC
+        WHERE c.photo_id = :photo_id
+        ORDER BY c.created_at ASC
     """, {"photo_id": photo_id})
+
     comments = [{"username": r[1], "content": r[0]} for r in cur.fetchall()]
 
     conn.close()
+
     return jsonify({
         "photo_id": photo[0],
         "username": photo[1],
         "description": photo[2],
         "location": photo[3],
         "image_path": photo[4],
-        "shot_time": photo[5],
+        "gps_latitude": photo[5],
+        "gps_longitude": photo[6],
+        "created_at": photo[7],
         "likes_count": likes_count,
         "liked": liked,
         "comments": comments
     })
+
+
 
 
 # =========================================
